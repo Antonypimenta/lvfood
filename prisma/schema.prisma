@@ -1,0 +1,55 @@
+// LVFood — Prisma schema (SQLite)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // URL com pool (PgBouncer) para runtime serverless.
+  url       = env("POSTGRES_PRISMA_URL")
+  // Conexão direta para migrations (prisma migrate deploy).
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+// Status do pedido: EM_PREPARO | PRONTO | EM_ENTREGA | ENTREGUE
+// Forma de pagamento: PIX | DINHEIRO | CARTAO
+// Pagamento: PAGO | PENDENTE
+// Status entregador: DISPONIVEL | EM_ENTREGA
+// (Mantidos como String + validação Zod para simplicidade de migração.)
+
+model Pedido {
+  id             String   @id @default(cuid())
+  numero         Int      @unique
+  nome           String
+  telefone       String
+  bairro         String
+  endereco       String
+  quantidade     Int
+  observacoes    String?
+  formaPagamento String   @default("PIX")
+  pagamento      String   @default("PENDENTE")
+  valor          Float
+  status         String   @default("EM_PREPARO")
+  horarioSaida   DateTime?
+  entregador     Entregador? @relation(fields: [entregadorId], references: [id], onDelete: SetNull)
+  entregadorId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([entregadorId])
+}
+
+model Entregador {
+  id        String   @id @default(cuid())
+  nome      String
+  status    String   @default("DISPONIVEL")
+  pedidos   Pedido[]
+  createdAt DateTime @default(now())
+}
+
+model Configuracao {
+  id         String @id @default("singleton")
+  nomeEvento String @default("Delivery Igreja")
+  valorCombo Float  @default(18)
+}
