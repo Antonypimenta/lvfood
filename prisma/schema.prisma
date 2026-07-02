@@ -4,15 +4,18 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // URL com pool (PgBouncer) para runtime serverless.
+  url       = env("POSTGRES_PRISMA_URL")
+  // Conexão direta para migrations (prisma migrate deploy).
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // Status do pedido: EM_PREPARO | PRONTO | EM_ENTREGA | ENTREGUE
 // Forma de pagamento: PIX | DINHEIRO | CARTAO
 // Pagamento: PAGO | PENDENTE
 // Status entregador: DISPONIVEL | EM_ENTREGA
-// (SQLite não suporta enums nativos — validados via Zod na aplicação.)
+// (Mantidos como String + validação Zod para simplicidade de migração.)
 
 model Pedido {
   id             String   @id @default(cuid())

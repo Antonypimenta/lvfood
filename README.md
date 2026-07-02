@@ -9,22 +9,41 @@ em tempo real.
 
 - **Next.js 15** (App Router) + **React 19** + **TypeScript**
 - **Tailwind CSS** + componentes no estilo **shadcn/ui**
-- **Prisma ORM** + **SQLite**
+- **Prisma ORM** + **PostgreSQL** (Vercel Postgres)
 - **Zustand** (estado + sincronização em tempo real por polling)
 - **React Hook Form** + **Zod** (formulários e validação)
 - **@dnd-kit** (drag and drop no Kanban)
 - **date-fns** + **Lucide React**
 
-## Como executar
+## Como executar (local)
+
+Requer um banco **PostgreSQL**. A forma mais simples é usar o mesmo banco da
+Vercel: crie o projeto/Postgres na Vercel (ver abaixo) e puxe as variáveis:
 
 ```bash
 npm install
-npx prisma migrate dev      # cria o banco e aplica a migration
-npx prisma db seed          # popula configuração + entregadores
+vercel link                 # vincula a pasta ao projeto Vercel
+vercel env pull .env        # baixa POSTGRES_PRISMA_URL e POSTGRES_URL_NON_POOLING
+npx prisma migrate deploy   # aplica as migrations
+npm run db:seed             # popula configuração + entregadores (opcional)
 npm run dev                 # http://localhost:3000
 ```
 
-> O arquivo `.env` já vem com `DATABASE_URL="file:./dev.db"`.
+> As variáveis de ambiente estão documentadas em `.env.example`.
+
+## Deploy na Vercel + Vercel Postgres
+
+1. Importe o repositório na Vercel (framework detectado: **Next.js**).
+2. Em **Storage → Create Database → Postgres**, crie o banco e **conecte** ao
+   projeto. Isso injeta automaticamente `POSTGRES_PRISMA_URL` e
+   `POSTGRES_URL_NON_POOLING` em todos os ambientes.
+3. Faça o deploy. O script de build (`prisma generate && prisma migrate deploy
+   && next build`) cria as tabelas automaticamente.
+4. Popule os entregadores uma vez (localmente, com `.env` puxado da Vercel):
+   `npm run db:seed` — ou cadastre-os pela própria tela **Entregadores**.
+
+> O Prisma usa a URL com pool (`POSTGRES_PRISMA_URL`) em runtime serverless e a
+> URL direta (`POSTGRES_URL_NON_POOLING`) para migrations.
 
 ## Funcionalidades
 
