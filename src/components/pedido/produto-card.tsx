@@ -52,24 +52,33 @@ export function ProdutoCard({ produto, destaque, onAdd }: ProdutoCardProps) {
     );
   }
 
+  const ehCombo = produto.categoria === "COMBOS";
+  const composicao = ehCombo ? composicaoTexto(produto) : "";
+  const legenda = composicao || produto.descricao;
+
   return (
     <button
       type="button"
       onClick={() => onAdd(produto)}
       className={cn(
         "group flex w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left shadow-sm transition-all hover:shadow-md active:scale-[0.99]",
-        CATEGORIA_COR[produto.categoria].ring
+        ehCombo ? "border-amber-200 bg-amber-50/40" : CATEGORIA_COR[produto.categoria].ring
       )}
     >
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-xl">
         {emoji}
       </span>
       <div className="min-w-0 flex-1">
-        <h3 className="font-bold leading-tight text-slate-800">{produto.nome}</h3>
-        {produto.descricao && (
-          <p className="truncate text-xs text-muted-foreground">
-            {produto.descricao}
-          </p>
+        <h3 className="flex items-center gap-1.5 font-bold leading-tight text-slate-800">
+          {produto.nome}
+          {ehCombo && (
+            <span className="rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
+              Combo
+            </span>
+          )}
+        </h3>
+        {legenda && (
+          <p className="truncate text-xs text-muted-foreground">{legenda}</p>
         )}
         <span className="mt-0.5 block text-sm font-extrabold text-primary">
           {formatCurrency(produto.preco)}
