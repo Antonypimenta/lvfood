@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Landmark, Wallet, CreditCard } from "lucide-react";
+import { Landmark, Wallet, CreditCard, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -222,17 +222,23 @@ export function CheckoutModal({
             />
           </div>
 
-          <DialogFooter className="pt-2">
+          <DialogFooter className="flex-col gap-2 pt-2 sm:flex-col">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isSubmitting}
+              className="w-full font-bold"
+            >
+              {isSubmitting ? "Enviando..." : "Confirmar pedido ✅"}
+            </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="w-full gap-1.5"
             >
-              Voltar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Enviando..." : "Confirmar pedido"}
+              <Plus className="h-4 w-4" /> Pedir mais itens 🍔
             </Button>
           </DialogFooter>
         </form>

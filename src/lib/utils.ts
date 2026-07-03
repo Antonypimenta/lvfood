@@ -23,11 +23,12 @@ export function onlyDigits(value: string): string {
   return (value ?? "").replace(/\D/g, "");
 }
 
-/** Monta a URL do WhatsApp a partir de um telefone brasileiro. */
-export function whatsappUrl(telefone: string): string {
+/** Monta a URL do WhatsApp a partir de um telefone brasileiro (com mensagem opcional). */
+export function whatsappUrl(telefone: string, mensagem?: string): string {
   const digits = onlyDigits(telefone);
   const withCountry = digits.startsWith("55") ? digits : `55${digits}`;
-  return `https://wa.me/${withCountry}`;
+  const base = `https://wa.me/${withCountry}`;
+  return mensagem ? `${base}?text=${encodeURIComponent(mensagem)}` : base;
 }
 
 /** Formata telefone para exibição: (24) 99999-9999 */
