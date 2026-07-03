@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/toast";
 
 export const metadata: Metadata = {
@@ -22,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="font-sans">
-        <AppShell>{children}</AppShell>
+        {children}
         <Toaster />
       </body>
     </html>

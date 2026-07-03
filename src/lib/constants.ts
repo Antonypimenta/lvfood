@@ -3,7 +3,35 @@ import type {
   FormaPagamento,
   StatusPagamento,
   StatusEntregador,
+  CategoriaProduto,
 } from "@/types";
+
+/** Categorias disponíveis no módulo Produtos. */
+export const CATEGORIAS_PRODUTO: CategoriaProduto[] = [
+  "COMBOS",
+  "HAMBURGUERES",
+  "BATATAS",
+  "BEBIDAS",
+  "EXTRAS",
+];
+
+export const CATEGORIA_PRODUTO_LABEL: Record<CategoriaProduto, string> = {
+  COMBOS: "Combos",
+  HAMBURGUERES: "Hambúrgueres",
+  BATATAS: "Batatas",
+  BEBIDAS: "Bebidas",
+  EXTRAS: "Extras",
+};
+
+/**
+ * Ordem em que as categorias aparecem no cardápio público, abaixo dos Combos.
+ * Extras NUNCA aparece no cardápio principal (só como adicional de hambúrguer).
+ */
+export const CATEGORIAS_CARDAPIO: CategoriaProduto[] = [
+  "HAMBURGUERES",
+  "BATATAS",
+  "BEBIDAS",
+];
 
 export const STATUS_PEDIDO: StatusPedido[] = [
   "EM_PREPARO",

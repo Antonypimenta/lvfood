@@ -1,9 +1,17 @@
 # LVFood 🍔
 
 Sistema web profissional para gerenciamento de pedidos de delivery de hambúrguer,
-feito para operar com **máxima velocidade** durante um evento. Cadastre um pedido
-em menos de 15 segundos, acompanhe tudo pelo Kanban e controle entregas e vendas
-em tempo real.
+feito para operar com **máxima velocidade** durante um evento. Os clientes montam
+o próprio pedido na página pública `/pedido`, e a equipe acompanha tudo pelo
+Kanban, controlando entregas e vendas em tempo real. O cardápio é **totalmente
+dinâmico**, gerenciado pelo módulo **Produtos** no painel.
+
+## Áreas
+
+- **`/pedido`** — página **pública** onde o cliente monta o pedido: combos em
+  destaque, categorias (Hambúrgueres, Batatas, Bebidas), carrinho e checkout.
+- **`/`** e demais rotas — **painel administrativo** (dashboard, kanban, pedidos,
+  produtos, entregadores, vendas, configurações).
 
 ## Stack
 
@@ -25,8 +33,8 @@ npm install
 vercel link                 # vincula a pasta ao projeto Vercel
 vercel env pull .env        # baixa POSTGRES_PRISMA_URL e POSTGRES_URL_NON_POOLING
 npx prisma migrate deploy   # aplica as migrations
-npm run db:seed             # popula configuração + entregadores (opcional)
-npm run dev                 # http://localhost:3000
+npm run db:seed             # popula config + entregadores + produtos (opcional)
+npm run dev                 # http://localhost:3000 (painel) · /pedido (público)
 ```
 
 > As variáveis de ambiente estão documentadas em `.env.example`.
@@ -49,12 +57,14 @@ npm run dev                 # http://localhost:3000
 
 | Tela | O que faz |
 |------|-----------|
-| **Dashboard** | Cards de operação (total, em preparo, prontos, em entrega, entregues, combos, valor vendido, ticket médio), últimos pedidos e status dos entregadores. |
-| **Kanban** | Colunas *Em preparo · Pronto · Em entrega · Entregue* com drag-and-drop (salva automático), cronômetro por pedido, botão WhatsApp e criação de rota a partir da coluna *Pronto*. |
+| **Pedido (público)** | Cardápio dinâmico: **combos em destaque** no topo, demais categorias abaixo, carrinho responsivo e checkout (nome, telefone, bairro, endereço, complemento, forma de pagamento e troco). Ao adicionar um hambúrguer, abre o modal de **extras** vinculados àquele item. |
+| **Dashboard** | Cards de operação (total, em preparo, prontos, em entrega, entregues, itens vendidos, valor vendido, ticket médio), últimos pedidos e status dos entregadores. |
+| **Kanban** | Colunas *Em preparo · Pronto · Em entrega · Entregue* com drag-and-drop (salva automático), cronômetro por pedido, itens do pedido, botão WhatsApp e criação de rota a partir da coluna *Pronto*. |
 | **Pedidos** | Tabela completa com pesquisa instantânea (nome/telefone/nº), filtros (status, bairro, pagamento) e ações editar/duplicar/excluir. |
+| **Produtos** | Módulo de cardápio: cadastrar, editar, excluir, ativar/desativar e reordenar produtos por categoria (Combos, Hambúrgueres, Batatas, Bebidas, Extras). |
 | **Entregadores** | Cadastro simples, cards com status e entregas, e **Finalizar rota** (marca pedidos como entregues). |
-| **Vendas** | Painel financeiro em tempo real: valor vendido, combos, PIX/Dinheiro/Cartão, ticket médio, entregues e pendentes. |
-| **Configurações** | Nome do evento, valor do combo e **Limpar sistema** (com confirmação). |
+| **Vendas** | Painel financeiro em tempo real: valor vendido, itens, PIX/Dinheiro/Cartão, ticket médio, entregues e pendentes. |
+| **Configurações** | Nome do evento e **Limpar sistema** (com confirmação). |
 
 ## Atalhos de teclado
 
@@ -64,7 +74,13 @@ npm run dev                 # http://localhost:3000
 
 ## Regras de negócio
 
-- **Valor** nunca é editado — sempre `quantidade × valor do combo`.
+- **Cardápio dinâmico**: todos os produtos vêm do banco (módulo Produtos). Nada de
+  valores fixos no código.
+- **Extras** só podem ser adicionados a **hambúrgueres** e ficam vinculados
+  exclusivamente àquele item — nunca são compartilhados entre hambúrgueres nem
+  aparecem no cardápio principal.
+- **Valor** é sempre recalculado no servidor a partir dos preços do banco
+  (`(preço + extras) × quantidade`), somando todos os itens do pedido.
 - **Número** do pedido é sequencial e gerado no servidor (`0001`, `0002`, ...).
 - Ao criar rota: pedidos → *Em entrega*, entregador → *Ocupado*, horário de saída registrado.
 - Ao finalizar rota: pedidos → *Entregue*, entregador → *Disponível*.
