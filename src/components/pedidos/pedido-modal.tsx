@@ -50,6 +50,7 @@ const defaults: PedidoClienteValues = {
   formaPagamento: "PIX",
   pagamento: "PENDENTE",
   troco: null,
+  agendamento: "",
 };
 
 let seq = 0;
@@ -113,6 +114,7 @@ export function PedidoModal() {
         formaPagamento: pedidoEmEdicao.formaPagamento,
         pagamento: pedidoEmEdicao.pagamento,
         troco: pedidoEmEdicao.troco ?? null,
+        agendamento: pedidoEmEdicao.agendamento ?? "",
       });
       setStatus(pedidoEmEdicao.status);
       setLinhas([]);
@@ -139,7 +141,10 @@ export function PedidoModal() {
       setStatus("EM_PREPARO");
       setLinhas([]);
     }
-  }, [open, pedidoEmEdicao, prefill, reset, produtos]);
+    // Só sincroniza quando o modal abre / muda de contexto — NÃO depende de
+    // `produtos` (o polling troca essa referência a cada 3s e zeraria os itens).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pedidoEmEdicao, prefill, reset]);
 
   const formaPagamento = watch("formaPagamento");
   const pagamento = watch("pagamento");
@@ -420,13 +425,19 @@ export function PedidoModal() {
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="complemento">Complemento</Label>
-            <Input
-              id="complemento"
-              placeholder="Apto, bloco, referência..."
-              {...register("complemento")}
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="complemento">Complemento</Label>
+              <Input
+                id="complemento"
+                placeholder="Apto, bloco, referência..."
+                {...register("complemento")}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="agendamento">🕐 Agendar entrega</Label>
+              <Input id="agendamento" type="time" {...register("agendamento")} />
+            </div>
           </div>
 
           <div className="grid gap-2">

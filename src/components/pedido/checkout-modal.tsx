@@ -37,6 +37,7 @@ const defaults: CheckoutFormValues = {
   observacoes: "",
   formaPagamento: "PIX",
   troco: null,
+  agendamento: "",
 };
 
 export function CheckoutModal({
@@ -167,6 +168,14 @@ export function CheckoutModal({
               placeholder="Apto, bloco, referência..."
               {...register("complemento")}
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="agendamento">🕐 Agendar entrega (opcional)</Label>
+            <Input id="agendamento" type="time" {...register("agendamento")} />
+            <p className="text-xs text-muted-foreground">
+              Deixe em branco para entregar o quanto antes.
+            </p>
           </div>
 
           <div className="grid gap-2">

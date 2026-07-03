@@ -33,6 +33,8 @@ model Pedido {
   troco          Float?
   valor          Float
   status         String   @default("EM_PREPARO")
+  // Horário de entrega agendado (opcional), no formato "HH:MM".
+  agendamento    String?
   horarioSaida   DateTime?
   entregador     Entregador? @relation(fields: [entregadorId], references: [id], onDelete: SetNull)
   entregadorId   String?
