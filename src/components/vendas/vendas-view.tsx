@@ -39,7 +39,7 @@ export function VendasView() {
           iconClass="bg-green-100 text-green-600"
         />
         <StatCard
-          label="Combos vendidos"
+          label="Itens vendidos"
           value={v.combosVendidos}
           icon={Beef}
           iconClass="bg-amber-100 text-amber-600"

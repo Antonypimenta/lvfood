@@ -39,7 +39,7 @@ export function DashboardView() {
               {config?.nomeEvento ?? "LVFood"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Combo a {formatCurrency(config?.valorCombo ?? 0)} · Painel de operação
+              Painel de operação · Delivery em tempo real
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export function DashboardView() {
           iconClass="bg-slate-100 text-slate-600"
         />
         <StatCard
-          label="Combos vendidos"
+          label="Itens vendidos"
           value={stats.combosVendidos}
           icon={Beef}
           iconClass="bg-amber-100 text-amber-600"
@@ -119,7 +119,8 @@ export function DashboardView() {
                         {p.nome}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {p.quantidade} combo(s) · {format(new Date(p.createdAt), "HH:mm")}
+                        {p.quantidade} {p.quantidade === 1 ? "item" : "itens"} ·{" "}
+                        {format(new Date(p.createdAt), "HH:mm")}
                       </p>
                     </div>
                     <span className="hidden text-sm font-semibold text-foreground sm:block">

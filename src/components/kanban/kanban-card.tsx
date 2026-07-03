@@ -124,15 +124,38 @@ export function KanbanCard({
         </p>
       </div>
 
-      {/* Combos + valor */}
-      <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2.5">
-        <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-          <Beef className="h-4 w-4 text-amber-500" />
-          {pedido.quantidade} {pedido.quantidade === 1 ? "Combo" : "Combos"}
-        </span>
-        <span className="text-sm font-bold text-primary">
-          {formatCurrency(pedido.valor)}
-        </span>
+      {/* Itens + valor */}
+      <div className="mt-2.5 border-t border-border pt-2.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 space-y-0.5">
+            {pedido.itens.length > 0 ? (
+              pedido.itens.map((it) => (
+                <div
+                  key={it.id}
+                  className="flex items-start gap-1.5 text-sm font-medium text-foreground"
+                >
+                  <Beef className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                  <span>
+                    {it.quantidade}× {it.nomeProduto}
+                    {it.extras.length > 0 && (
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        + {it.extras.map((e) => e.nomeProduto).join(", ")}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <Beef className="h-4 w-4 text-amber-500" />
+                {pedido.quantidade} {pedido.quantidade === 1 ? "item" : "itens"}
+              </span>
+            )}
+          </div>
+          <span className="shrink-0 text-sm font-bold text-primary">
+            {formatCurrency(pedido.valor)}
+          </span>
+        </div>
       </div>
 
       {/* Pagamento */}

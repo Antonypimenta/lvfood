@@ -2,17 +2,23 @@
 
 import { create } from "zustand";
 import type { Pedido } from "@/types";
-import type { PedidoFormValues } from "@/schemas/pedido";
+import type { PedidoClienteValues } from "@/schemas/pedido";
+
+/** Valores usados para pré-preencher o modal ao duplicar um pedido. */
+export interface PedidoPrefill {
+  cliente?: Partial<PedidoClienteValues>;
+  itens?: { produtoId: string; quantidade: number; extrasIds: string[] }[];
+}
 
 interface UiState {
   // Modal de pedido (novo / editar / duplicar)
   pedidoModalOpen: boolean;
   pedidoEmEdicao: Pedido | null;
-  valoresIniciais: Partial<PedidoFormValues> | null;
+  prefill: PedidoPrefill | null;
 
   abrirNovoPedido: () => void;
   abrirEdicao: (pedido: Pedido) => void;
-  abrirDuplicar: (valores: Partial<PedidoFormValues>) => void;
+  abrirDuplicar: (prefill: PedidoPrefill) => void;
   fecharPedidoModal: () => void;
 
   // Foco na busca global (CTRL+K)
@@ -23,34 +29,34 @@ interface UiState {
 export const useUiStore = create<UiState>((set) => ({
   pedidoModalOpen: false,
   pedidoEmEdicao: null,
-  valoresIniciais: null,
+  prefill: null,
 
   abrirNovoPedido: () =>
     set({
       pedidoModalOpen: true,
       pedidoEmEdicao: null,
-      valoresIniciais: null,
+      prefill: null,
     }),
 
   abrirEdicao: (pedido) =>
     set({
       pedidoModalOpen: true,
       pedidoEmEdicao: pedido,
-      valoresIniciais: null,
+      prefill: null,
     }),
 
-  abrirDuplicar: (valores) =>
+  abrirDuplicar: (prefill) =>
     set({
       pedidoModalOpen: true,
       pedidoEmEdicao: null,
-      valoresIniciais: valores,
+      prefill,
     }),
 
   fecharPedidoModal: () =>
     set({
       pedidoModalOpen: false,
       pedidoEmEdicao: null,
-      valoresIniciais: null,
+      prefill: null,
     }),
 
   focarBuscaToken: 0,

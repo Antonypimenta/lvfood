@@ -79,14 +79,25 @@ export function PedidosView() {
 
   function duplicar(p: Pedido) {
     abrirDuplicar({
-      nome: p.nome,
-      telefone: p.telefone,
-      bairro: p.bairro,
-      endereco: p.endereco,
-      formaPagamento: p.formaPagamento,
-      observacoes: p.observacoes ?? "",
-      quantidade: p.quantidade,
-      pagamento: "PENDENTE",
+      cliente: {
+        nome: p.nome,
+        telefone: p.telefone,
+        bairro: p.bairro,
+        endereco: p.endereco,
+        complemento: p.complemento ?? "",
+        formaPagamento: p.formaPagamento,
+        observacoes: p.observacoes ?? "",
+        pagamento: "PENDENTE",
+      },
+      itens: p.itens
+        .filter((it) => it.produtoId)
+        .map((it) => ({
+          produtoId: it.produtoId as string,
+          quantidade: it.quantidade,
+          extrasIds: it.extras
+            .filter((e) => e.produtoId)
+            .map((e) => e.produtoId as string),
+        })),
     });
   }
 

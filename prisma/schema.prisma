@@ -15,6 +15,7 @@ datasource db {
 // Forma de pagamento: PIX | DINHEIRO | CARTAO
 // Pagamento: PAGO | PENDENTE
 // Status entregador: DISPONIVEL | EM_ENTREGA
+// Categoria do produto: COMBOS | HAMBURGUERES | BATATAS | BEBIDAS | EXTRAS
 // (Mantidos como String + validação Zod para simplicidade de migração.)
 
 model Pedido {
@@ -24,20 +25,72 @@ model Pedido {
   telefone       String
   bairro         String
   endereco       String
+  complemento    String?
   quantidade     Int
   observacoes    String?
   formaPagamento String   @default("PIX")
   pagamento      String   @default("PENDENTE")
+  troco          Float?
   valor          Float
   status         String   @default("EM_PREPARO")
   horarioSaida   DateTime?
   entregador     Entregador? @relation(fields: [entregadorId], references: [id], onDelete: SetNull)
   entregadorId   String?
+  itens          PedidoItem[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@index([status])
   @@index([entregadorId])
+}
+
+// Produto do cardápio — totalmente gerenciado pelo módulo Produtos.
+model Produto {
+  id        String   @id @default(cuid())
+  nome      String
+  descricao String?
+  preco     Float
+  categoria String
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+  itens     PedidoItem[]
+  extras    ItemExtra[]
+  createdAt DateTime @default(now())
+
+  @@index([categoria])
+  @@index([ativo])
+}
+
+// Item de um pedido: aponta para um Produto e guarda um snapshot de nome/preço
+// (preserva o histórico mesmo que o produto seja editado/excluído depois).
+model PedidoItem {
+  id            String   @id @default(cuid())
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  pedidoId      String
+  produto       Produto? @relation(fields: [produtoId], references: [id], onDelete: SetNull)
+  produtoId     String?
+  nomeProduto   String
+  categoria     String
+  quantidade    Int
+  valorUnitario Float
+  valorTotal    Float
+  extras        ItemExtra[]
+  createdAt     DateTime @default(now())
+
+  @@index([pedidoId])
+}
+
+// Extra vinculado exclusivamente a um item (hambúrguer) do pedido.
+model ItemExtra {
+  id            String     @id @default(cuid())
+  item          PedidoItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId        String
+  produto       Produto?   @relation(fields: [produtoId], references: [id], onDelete: SetNull)
+  produtoId     String?
+  nomeProduto   String
+  valorUnitario Float
+
+  @@index([itemId])
 }
 
 model Entregador {
