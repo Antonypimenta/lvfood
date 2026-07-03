@@ -9,11 +9,6 @@ import { Cart } from "./cart";
 import { ExtrasModal } from "./extras-modal";
 import { CheckoutModal } from "./checkout-modal";
 import { useCarrinho, type CarrinhoItem } from "@/store/useCarrinho";
-import {
-  CATEGORIAS_CARDAPIO,
-  CATEGORIA_PRODUTO_LABEL,
-  CATEGORIA_EMOJI,
-} from "@/lib/constants";
 import { formatCurrency, formatNumeroPedido } from "@/lib/utils";
 import { aceitaExtras } from "@/lib/produto";
 import type { Produto } from "@/types";
@@ -30,13 +25,23 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
   const total = useCarrinho((s) => s.total);
   const totalItens = useCarrinho((s) => s.totalItens);
 
-  // Agrupa o cardápio. Extras nunca aparecem no cardápio principal.
-  const combos = produtos.filter((p) => p.categoria === "COMBOS");
+  // Extras nunca aparecem no cardápio principal (só como adicional).
   const extras = produtos.filter((p) => p.categoria === "EXTRAS");
-  const porCategoria = CATEGORIAS_CARDAPIO.map((cat) => ({
-    categoria: cat,
-    itens: produtos.filter((p) => p.categoria === cat),
-  })).filter((g) => g.itens.length > 0);
+  // Lista única, sem divisão por categoria: combos primeiro, depois o restante.
+  const prioridade: Record<string, number> = {
+    COMBOS: 0,
+    HAMBURGUERES: 1,
+    BATATAS: 2,
+    BEBIDAS: 3,
+  };
+  const cardapio = produtos
+    .filter((p) => p.categoria !== "EXTRAS")
+    .sort(
+      (a, b) =>
+        (prioridade[a.categoria] ?? 9) - (prioridade[b.categoria] ?? 9) ||
+        a.ordem - b.ordem ||
+        a.nome.localeCompare(b.nome)
+    );
 
   const [extrasTarget, setExtrasTarget] = React.useState<{
     item: CarrinhoItem;
@@ -124,34 +129,14 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
             </div>
           )}
 
-          {/* Combos em destaque no topo */}
-          {combos.length > 0 && (
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-xl font-black text-slate-800">
-                <span>⭐</span> {CATEGORIA_PRODUTO_LABEL.COMBOS}
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {combos.map((p) => (
-                  <ProdutoCard key={p.id} produto={p} destaque onAdd={handleAdd} />
-                ))}
-              </div>
-            </section>
+          {/* Lista única de produtos, sem divisão por categoria */}
+          {cardapio.length > 0 && (
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              {cardapio.map((p) => (
+                <ProdutoCard key={p.id} produto={p} onAdd={handleAdd} />
+              ))}
+            </div>
           )}
-
-          {/* Demais categorias (Hambúrgueres, Batatas, Bebidas) */}
-          {porCategoria.map((grupo) => (
-            <section key={grupo.categoria}>
-              <h2 className="mb-3 flex items-center gap-2 text-xl font-black text-slate-800">
-                <span>{CATEGORIA_EMOJI[grupo.categoria]}</span>{" "}
-                {CATEGORIA_PRODUTO_LABEL[grupo.categoria]}
-              </h2>
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                {grupo.itens.map((p) => (
-                  <ProdutoCard key={p.id} produto={p} onAdd={handleAdd} />
-                ))}
-              </div>
-            </section>
-          ))}
         </div>
 
         {/* Carrinho — painel fixo no desktop */}
