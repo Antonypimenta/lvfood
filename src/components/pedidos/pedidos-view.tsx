@@ -1,14 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Search,
-  Pencil,
-  Trash2,
-  Copy,
-  MessageCircle,
-  X,
-} from "lucide-react";
+import { Search, Pencil, Trash2, Copy, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -17,6 +10,7 @@ import {
   StatusPedidoBadge,
   PagamentoBadge,
 } from "@/components/shared/status-badges";
+import { WhatsAppMenu } from "@/components/shared/whatsapp-menu";
 import { useStore } from "@/store/useStore";
 import { useUiStore } from "@/store/useUiStore";
 import { toast } from "@/components/ui/toast";
@@ -26,13 +20,8 @@ import {
   formatNumeroPedido,
   formatTelefone,
   onlyDigits,
-  whatsappUrl,
 } from "@/lib/utils";
-import {
-  STATUS_PEDIDO,
-  STATUS_PEDIDO_LABEL,
-  FORMA_PAGAMENTO_LABEL,
-} from "@/lib/constants";
+import { STATUS_PEDIDO, STATUS_PEDIDO_LABEL } from "@/lib/constants";
 import { format } from "date-fns";
 import type { Pedido } from "@/types";
 
@@ -127,11 +116,11 @@ export function PedidosView() {
             className="pl-9"
           />
         </div>
-        <div className="grid grid-cols-3 gap-2 lg:w-auto lg:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 lg:flex lg:w-auto lg:flex-none">
           <Select
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
-            className="lg:w-36"
+            className="lg:w-40"
           >
             <option value="">Status</option>
             {STATUS_PEDIDO.map((s) => (
@@ -155,7 +144,7 @@ export function PedidosView() {
           <Select
             value={filtroPagamento}
             onChange={(e) => setFiltroPagamento(e.target.value)}
-            className="lg:w-36"
+            className="lg:w-40"
           >
             <option value="">Pagamento</option>
             <option value="PAGO">Pago</option>
@@ -230,15 +219,7 @@ export function PedidosView() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <a
-                        href={whatsappUrl(p.telefone)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50"
-                        title="WhatsApp"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </a>
+                      <WhatsAppMenu pedido={p} variant="icon" />
                       <button
                         onClick={() => abrirEdicao(p)}
                         className="rounded-md p-1.5 text-slate-500 transition-colors hover:bg-secondary"

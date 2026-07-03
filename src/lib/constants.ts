@@ -99,6 +99,14 @@ export const STATUS_PEDIDO_DOT: Record<StatusPedido, string> = {
   ENTREGUE: "bg-slate-400",
 };
 
+/** Acento de cor do card no Kanban (borda lateral + leve fundo por status). */
+export const STATUS_PEDIDO_CARD: Record<StatusPedido, string> = {
+  EM_PREPARO: "border-l-4 border-l-amber-400 bg-amber-50/40",
+  PRONTO: "border-l-4 border-l-green-500 bg-green-50/40",
+  EM_ENTREGA: "border-l-4 border-l-blue-500 bg-blue-50/40",
+  ENTREGUE: "border-l-4 border-l-slate-300 bg-slate-50/60",
+};
+
 export const FORMA_PAGAMENTO_LABEL: Record<FormaPagamento, string> = {
   PIX: "PIX",
   DINHEIRO: "Dinheiro",

@@ -9,16 +9,16 @@ import {
   Home,
   Beef,
   Wallet,
-  MessageCircle,
   Pencil,
   GripVertical,
 } from "lucide-react";
-import { cn, formatCurrency, formatTelefone, whatsappUrl } from "@/lib/utils";
+import { cn, formatCurrency, formatTelefone } from "@/lib/utils";
+import { WhatsAppMenu } from "@/components/shared/whatsapp-menu";
 import { useTempo } from "@/hooks/useTempo";
 import { useUiStore } from "@/store/useUiStore";
 import { useStore } from "@/store/useStore";
 import { PagamentoBadge } from "@/components/shared/status-badges";
-import { FORMA_PAGAMENTO_LABEL } from "@/lib/constants";
+import { FORMA_PAGAMENTO_LABEL, STATUS_PEDIDO_CARD } from "@/lib/constants";
 import { formatNumeroPedido } from "@/lib/utils";
 import type { Pedido } from "@/types";
 
@@ -65,6 +65,7 @@ export function KanbanCard({
       style={style}
       className={cn(
         "group relative rounded-xl border border-border bg-card p-3.5 shadow-sm transition-shadow hover:shadow-md",
+        STATUS_PEDIDO_CARD[pedido.status],
         isDragging && "opacity-40",
         selected && "ring-2 ring-primary ring-offset-1",
         ativo && tempo.nivel === "critico" && "animate-soft-pulse"
@@ -190,16 +191,7 @@ export function KanbanCard({
 
       {/* Ações */}
       <div className="mt-3 flex gap-2">
-        <a
-          href={whatsappUrl(pedido.telefone)}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={stop}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-50 px-2 py-1.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100"
-        >
-          <MessageCircle className="h-3.5 w-3.5" />
-          WhatsApp
-        </a>
+        <WhatsAppMenu pedido={pedido} variant="kanban" />
         <button
           onClick={(e) => { stop(e); abrirEdicao(pedido); }}
           className="flex items-center justify-center rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
