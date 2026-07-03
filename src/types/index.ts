@@ -77,6 +77,7 @@ export interface Pedido {
   troco: number | null;
   valor: number;
   status: StatusPedido;
+  agendamento: string | null;
   horarioSaida: string | null;
   entregadorId: string | null;
   entregador: Entregador | null;

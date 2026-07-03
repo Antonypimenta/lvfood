@@ -114,6 +114,7 @@ export async function criarPedido(
       pagamento: parsed.pagamento,
       troco:
         parsed.formaPagamento === "DINHEIRO" ? parsed.troco ?? null : null,
+      agendamento: parsed.agendamento || null,
       valor,
       status: "EM_PREPARO",
       itens: { create: itensData },

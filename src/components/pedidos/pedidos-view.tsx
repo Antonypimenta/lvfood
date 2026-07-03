@@ -216,6 +216,11 @@ export function PedidosView() {
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                     {format(new Date(p.createdAt), "HH:mm")}
+                    {p.agendamento && (
+                      <span className="mt-0.5 block text-xs font-semibold text-indigo-600">
+                        🕐 {p.agendamento}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">

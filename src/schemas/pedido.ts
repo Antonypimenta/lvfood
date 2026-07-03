@@ -24,6 +24,7 @@ export const pedidoClienteSchema = z.object({
   formaPagamento: formaPagamentoEnum,
   pagamento: statusPagamentoEnum,
   troco: z.coerce.number().min(0).optional().nullable(),
+  agendamento: z.string().trim().optional().or(z.literal("")),
 });
 
 export type PedidoClienteValues = z.infer<typeof pedidoClienteSchema>;
@@ -64,6 +65,7 @@ export const atualizarPedidoSchema = z.object({
   formaPagamento: formaPagamentoEnum.optional(),
   pagamento: statusPagamentoEnum.optional(),
   troco: z.coerce.number().min(0).nullable().optional(),
+  agendamento: z.string().trim().nullable().optional(),
   status: statusPedidoEnum.optional(),
   entregadorId: z.string().nullable().optional(),
 });

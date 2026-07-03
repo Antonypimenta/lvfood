@@ -164,6 +164,13 @@ export function KanbanCard({
         </div>
       </div>
 
+      {/* Entrega agendada */}
+      {pedido.agendamento && (
+        <div className="mt-2 flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+          🕐 Entrega agendada: {pedido.agendamento}
+        </div>
+      )}
+
       {/* Pagamento */}
       <div className="mt-2 flex items-center justify-between">
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
