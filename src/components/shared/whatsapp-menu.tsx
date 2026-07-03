@@ -59,7 +59,7 @@ function sugestoes(pedido: Pedido, evento: string) {
 export function WhatsAppMenu({ pedido, variant = "icon" }: WhatsAppMenuProps) {
   const [open, setOpen] = React.useState(false);
   const config = useStore((s) => s.config);
-  const evento = config?.nomeEvento ?? "LVFood";
+  const evento = config?.nomeEvento ?? "Burguer LV";
   const opcoes = sugestoes(pedido, evento);
 
   function stop(e: React.MouseEvent) {

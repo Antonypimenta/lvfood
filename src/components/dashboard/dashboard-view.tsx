@@ -36,7 +36,7 @@ export function DashboardView() {
           <Logo compact />
           <div>
             <h2 className="text-xl font-bold text-foreground">
-              {config?.nomeEvento ?? "LVFood"}
+              {config?.nomeEvento ?? "Burguer LV"}
             </h2>
             <p className="text-sm text-muted-foreground">
               Painel de operação · Delivery em tempo real
