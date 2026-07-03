@@ -28,12 +28,12 @@ export function ConfigView() {
   const { register, handleSubmit, reset, formState } =
     useForm<ConfigFormValues>({
       resolver: zodResolver(configSchema),
-      defaultValues: { nomeEvento: "", valorCombo: 0 },
+      defaultValues: { nomeEvento: "" },
     });
 
   React.useEffect(() => {
     if (config) {
-      reset({ nomeEvento: config.nomeEvento, valorCombo: config.valorCombo });
+      reset({ nomeEvento: config.nomeEvento });
     }
   }, [config, reset]);
 
@@ -52,7 +52,8 @@ export function ConfigView() {
         <CardHeader>
           <CardTitle>Dados do evento</CardTitle>
           <CardDescription>
-            O valor do combo é usado para calcular automaticamente os pedidos.
+            Nome exibido no painel e na página pública de pedidos. O cardápio e os
+            preços são gerenciados no módulo <b>Produtos</b>.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -63,21 +64,6 @@ export function ConfigView() {
               {formState.errors.nomeEvento && (
                 <p className="text-xs text-destructive">
                   {formState.errors.nomeEvento.message}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="valorCombo">Valor do combo (R$)</Label>
-              <Input
-                id="valorCombo"
-                type="number"
-                step="0.01"
-                min={0}
-                {...register("valorCombo")}
-              />
-              {formState.errors.valorCombo && (
-                <p className="text-xs text-destructive">
-                  {formState.errors.valorCombo.message}
                 </p>
               )}
             </div>

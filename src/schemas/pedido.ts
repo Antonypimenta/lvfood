@@ -79,7 +79,6 @@ export const entregadorSchema = z.object({
 
 export const configSchema = z.object({
   nomeEvento: z.string().trim().min(1, "Informe o nome do evento"),
-  valorCombo: z.coerce.number().min(0, "Valor inválido"),
 });
 
 export type ConfigFormValues = z.infer<typeof configSchema>;

@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn, formatCurrency } from "@/lib/utils";
+import { CATEGORIA_EMOJI, CATEGORIA_COR } from "@/lib/constants";
+import { composicaoTexto } from "@/lib/produto";
 import type { Produto } from "@/types";
 
 interface ProdutoCardProps {
@@ -14,58 +15,72 @@ interface ProdutoCardProps {
 }
 
 export function ProdutoCard({ produto, destaque, onAdd }: ProdutoCardProps) {
+  const emoji = CATEGORIA_EMOJI[produto.categoria];
+
   if (destaque) {
+    const composicao = composicaoTexto(produto);
     return (
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-5 shadow-sm transition-shadow hover:shadow-md">
+      <button
+        type="button"
+        onClick={() => onAdd(produto)}
+        className="group flex w-full flex-col justify-between gap-3 rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-orange-50 to-white p-4 text-left shadow-sm transition-all hover:border-amber-300 hover:shadow-md active:scale-[0.99]"
+      >
         <div>
-          <div className="mb-1 inline-flex rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary">
-            Combo
+          <div className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-amber-400/90 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm">
+            ⭐ Combo
           </div>
-          <h3 className="text-lg font-bold text-foreground">{produto.nome}</h3>
-          {produto.descricao && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {produto.descricao}
-            </p>
+          <h3 className="text-lg font-extrabold leading-tight text-slate-800">
+            {produto.nome}
+          </h3>
+          {composicao ? (
+            <p className="mt-1 text-sm text-slate-600">🍔 {composicao}</p>
+          ) : (
+            produto.descricao && (
+              <p className="mt-1 text-sm text-slate-600">{produto.descricao}</p>
+            )
           )}
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-xl font-extrabold text-primary">
+          <span className="text-2xl font-black text-primary">
             {formatCurrency(produto.preco)}
           </span>
-          <Button onClick={() => onAdd(produto)} className="gap-1.5">
+          <span className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-transform group-hover:scale-105">
             <Plus className="h-4 w-4" /> Adicionar
-          </Button>
+          </span>
         </div>
-      </div>
+      </button>
     );
   }
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => onAdd(produto)}
       className={cn(
-        "flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+        "group flex w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left shadow-sm transition-all hover:shadow-md active:scale-[0.99]",
+        CATEGORIA_COR[produto.categoria].ring
       )}
     >
-      <div className="min-w-0">
-        <h3 className="font-semibold text-foreground">{produto.nome}</h3>
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-xl">
+        {emoji}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h3 className="font-bold leading-tight text-slate-800">{produto.nome}</h3>
         {produto.descricao && (
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+          <p className="truncate text-xs text-muted-foreground">
             {produto.descricao}
           </p>
         )}
-        <span className="mt-1 block text-sm font-bold text-primary">
+        <span className="mt-0.5 block text-sm font-extrabold text-primary">
           {formatCurrency(produto.preco)}
         </span>
       </div>
-      <Button
-        size="icon"
-        variant="outline"
-        onClick={() => onAdd(produto)}
-        aria-label={`Adicionar ${produto.nome}`}
-        className="shrink-0"
+      <span
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm transition-transform group-hover:scale-110"
+        aria-hidden
       >
-        <Plus className="h-4 w-4" />
-      </Button>
-    </div>
+        <Plus className="h-5 w-5" />
+      </span>
+    </button>
   );
 }

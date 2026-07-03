@@ -120,10 +120,16 @@ export function ProdutosView() {
 
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-foreground">{p.nome}</p>
-                      {p.descricao && (
+                      {p.categoria === "COMBOS" && p.componentes.length > 0 ? (
                         <p className="truncate text-xs text-muted-foreground">
-                          {p.descricao}
+                          🍔 {p.componentes.map((c) => c.nome).join(" + ")}
                         </p>
+                      ) : (
+                        p.descricao && (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {p.descricao}
+                          </p>
+                        )
                       )}
                     </div>
 

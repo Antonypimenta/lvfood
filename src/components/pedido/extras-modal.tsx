@@ -62,10 +62,10 @@ export function ExtrasModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Deseja adicionar extras?</DialogTitle>
+          <DialogTitle>➕ Deseja adicionar extras?</DialogTitle>
           <DialogDescription>
-            Extras para <b>{nomeHamburguer}</b>. Ficam vinculados apenas a este
-            hambúrguer.
+            Extras para <b>{nomeHamburguer}</b> 🍔 — ficam vinculados apenas a
+            este item.
           </DialogDescription>
         </DialogHeader>
 

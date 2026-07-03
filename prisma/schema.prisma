@@ -55,10 +55,26 @@ model Produto {
   ordem     Int      @default(0)
   itens     PedidoItem[]
   extras    ItemExtra[]
+  // Componentes deste produto quando ele é um Combo (hambúrguer + acompanhamento + bebida).
+  componentes ComboItem[] @relation("ComboComponentes")
+  // Ocorrências deste produto dentro de combos.
+  emCombos    ComboItem[] @relation("ProdutoEmCombos")
   createdAt DateTime @default(now())
 
   @@index([categoria])
   @@index([ativo])
+}
+
+// Composição de um Combo: liga o combo aos produtos que o formam.
+model ComboItem {
+  id        String  @id @default(cuid())
+  combo     Produto @relation("ComboComponentes", fields: [comboId], references: [id], onDelete: Cascade)
+  comboId   String
+  produto   Produto @relation("ProdutoEmCombos", fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId String
+  ordem     Int     @default(0)
+
+  @@index([comboId])
 }
 
 // Item de um pedido: aponta para um Produto e guarda um snapshot de nome/preço
@@ -74,6 +90,8 @@ model PedidoItem {
   quantidade    Int
   valorUnitario Float
   valorTotal    Float
+  // Snapshot dos componentes (apenas para combos): "X-Burguer, Batata, Guaraná".
+  composicao    String?
   extras        ItemExtra[]
   createdAt     DateTime @default(now())
 
@@ -104,5 +122,4 @@ model Entregador {
 model Configuracao {
   id         String @id @default("singleton")
   nomeEvento String @default("Delivery Igreja")
-  valorCombo Float  @default(18)
 }

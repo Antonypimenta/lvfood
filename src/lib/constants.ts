@@ -33,6 +33,42 @@ export const CATEGORIAS_CARDAPIO: CategoriaProduto[] = [
   "BEBIDAS",
 ];
 
+/** Emoji de cada categoria — usado no cardápio público. */
+export const CATEGORIA_EMOJI: Record<CategoriaProduto, string> = {
+  COMBOS: "⭐",
+  HAMBURGUERES: "🍔",
+  BATATAS: "🍟",
+  BEBIDAS: "🥤",
+  EXTRAS: "➕",
+};
+
+/** Cores sugestivas por categoria (acento visual no cardápio público). */
+export const CATEGORIA_COR: Record<
+  CategoriaProduto,
+  { chip: string; ring: string }
+> = {
+  COMBOS: {
+    chip: "bg-amber-100 text-amber-700",
+    ring: "border-amber-200",
+  },
+  HAMBURGUERES: {
+    chip: "bg-orange-100 text-orange-700",
+    ring: "border-orange-200",
+  },
+  BATATAS: {
+    chip: "bg-yellow-100 text-yellow-700",
+    ring: "border-yellow-200",
+  },
+  BEBIDAS: {
+    chip: "bg-sky-100 text-sky-700",
+    ring: "border-sky-200",
+  },
+  EXTRAS: {
+    chip: "bg-emerald-100 text-emerald-700",
+    ring: "border-emerald-200",
+  },
+};
+
 export const STATUS_PEDIDO: StatusPedido[] = [
   "EM_PREPARO",
   "PRONTO",

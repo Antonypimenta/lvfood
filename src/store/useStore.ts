@@ -48,10 +48,7 @@ interface StoreState {
   excluirEntregador: (id: string) => Promise<void>;
 
   // config
-  salvarConfig: (data: {
-    nomeEvento: string;
-    valorCombo: number;
-  }) => Promise<void>;
+  salvarConfig: (data: { nomeEvento: string }) => Promise<void>;
   limparSistema: () => Promise<void>;
 }
 
