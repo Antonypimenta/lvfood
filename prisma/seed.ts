@@ -8,7 +8,7 @@ async function main() {
     update: {},
     create: {
       id: "singleton",
-      nomeEvento: "Delivery Igreja",
+      nomeEvento: "Burguer LV",
     },
   });
 

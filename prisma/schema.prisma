@@ -121,5 +121,5 @@ model Entregador {
 
 model Configuracao {
   id         String @id @default("singleton")
-  nomeEvento String @default("Delivery Igreja")
+  nomeEvento String @default("Burguer LV")
 }
