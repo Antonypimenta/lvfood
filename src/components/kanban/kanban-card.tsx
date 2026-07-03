@@ -137,8 +137,13 @@ export function KanbanCard({
                   <Beef className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
                   <span>
                     {it.quantidade}× {it.nomeProduto}
-                    {it.extras.length > 0 && (
+                    {it.composicao && (
                       <span className="block text-xs font-normal text-muted-foreground">
+                        {it.composicao}
+                      </span>
+                    )}
+                    {it.extras.length > 0 && (
+                      <span className="block text-xs font-normal text-emerald-600">
                         + {it.extras.map((e) => e.nomeProduto).join(", ")}
                       </span>
                     )}

@@ -17,6 +17,12 @@ export type CategoriaProduto =
   | "BEBIDAS"
   | "EXTRAS";
 
+export interface ComboComponente {
+  produtoId: string;
+  nome: string;
+  categoria: CategoriaProduto;
+}
+
 export interface Produto {
   id: string;
   nome: string;
@@ -25,6 +31,8 @@ export interface Produto {
   categoria: CategoriaProduto;
   ativo: boolean;
   ordem: number;
+  /** Componentes do combo (hambúrguer + acompanhamento + bebida). */
+  componentes: ComboComponente[];
   createdAt: string;
 }
 
@@ -43,6 +51,7 @@ export interface PedidoItem {
   quantidade: number;
   valorUnitario: number;
   valorTotal: number;
+  composicao: string | null;
   extras: ItemExtra[];
 }
 
@@ -79,7 +88,6 @@ export interface Pedido {
 export interface Configuracao {
   id: string;
   nomeEvento: string;
-  valorCombo: number;
 }
 
 /** Entregador com contagem de pedidos ativos/do dia. */

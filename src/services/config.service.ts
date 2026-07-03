@@ -6,7 +6,7 @@ export async function obterConfig() {
   const config = await prisma.configuracao.upsert({
     where: { id: "singleton" },
     update: {},
-    create: { id: "singleton", nomeEvento: "Delivery Igreja", valorCombo: 18 },
+    create: { id: "singleton", nomeEvento: "Delivery Igreja" },
   });
   return config;
 }

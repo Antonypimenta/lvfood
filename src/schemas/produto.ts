@@ -16,6 +16,8 @@ export const produtoFormSchema = z.object({
   categoria: categoriaProdutoEnum,
   ativo: z.boolean().default(true),
   ordem: z.coerce.number().int().min(0).default(0),
+  /** IDs dos produtos que compõem o combo (só usado quando categoria = COMBOS). */
+  componentesIds: z.array(z.string()).default([]),
 });
 
 export type ProdutoFormValues = z.infer<typeof produtoFormSchema>;
@@ -31,4 +33,5 @@ export const atualizarProdutoSchema = z.object({
   categoria: categoriaProdutoEnum.optional(),
   ativo: z.boolean().optional(),
   ordem: z.coerce.number().int().min(0).optional(),
+  componentesIds: z.array(z.string()).optional(),
 });

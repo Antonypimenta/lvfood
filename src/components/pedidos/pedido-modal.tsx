@@ -24,6 +24,7 @@ import { useStore } from "@/store/useStore";
 import { useUiStore } from "@/store/useUiStore";
 import { toast } from "@/components/ui/toast";
 import { formatCurrency } from "@/lib/utils";
+import { aceitaExtras } from "@/lib/produto";
 import {
   CATEGORIAS_PRODUTO,
   CATEGORIA_PRODUTO_LABEL,
@@ -151,7 +152,7 @@ export function PedidoModal() {
   function adicionar() {
     const produto = ativos.find((p) => p.id === selecionado);
     if (!produto) return;
-    if (produto.categoria !== "HAMBURGUERES") {
+    if (!aceitaExtras(produto)) {
       const existente = linhas.find(
         (l) => l.produto.id === produto.id && l.extras.length === 0
       );
@@ -170,7 +171,7 @@ export function PedidoModal() {
     const uid = novoUid();
     setLinhas((ls) => [...ls, { uid, produto, quantidade: 1, extras: [] }]);
     setSelecionado("");
-    if (produto.categoria === "HAMBURGUERES" && extrasDisponiveis.length > 0) {
+    if (aceitaExtras(produto) && extrasDisponiveis.length > 0) {
       setExtrasTarget({ uid, nome: produto.nome, atuais: [] });
     }
   }
@@ -276,7 +277,7 @@ export function PedidoModal() {
               {linhas.length > 0 && (
                 <div className="mt-1 space-y-2">
                   {linhas.map((l) => {
-                    const ehHamburguer = l.produto.categoria === "HAMBURGUERES";
+                    const ehHamburguer = aceitaExtras(l.produto);
                     return (
                       <div
                         key={l.uid}

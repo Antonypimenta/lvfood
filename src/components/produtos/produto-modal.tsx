@@ -20,6 +20,7 @@ import { toast } from "@/components/ui/toast";
 import { produtoFormSchema, type ProdutoFormValues } from "@/schemas/produto";
 import { useStore } from "@/store/useStore";
 import { CATEGORIAS_PRODUTO, CATEGORIA_PRODUTO_LABEL } from "@/lib/constants";
+import { formatCurrency } from "@/lib/utils";
 import type { Produto } from "@/types";
 
 interface ProdutoModalProps {
@@ -35,11 +36,13 @@ const defaults: ProdutoFormValues = {
   categoria: "HAMBURGUERES",
   ativo: true,
   ordem: 0,
+  componentesIds: [],
 };
 
 export function ProdutoModal({ open, onOpenChange, produto }: ProdutoModalProps) {
   const criarProduto = useStore((s) => s.criarProduto);
   const editarProduto = useStore((s) => s.editarProduto);
+  const produtos = useStore((s) => s.produtos);
   const isEdit = Boolean(produto);
 
   const {
@@ -64,6 +67,7 @@ export function ProdutoModal({ open, onOpenChange, produto }: ProdutoModalProps)
         categoria: produto.categoria,
         ativo: produto.ativo,
         ordem: produto.ordem,
+        componentesIds: produto.componentes.map((c) => c.produtoId),
       });
     } else {
       reset(defaults);
@@ -71,6 +75,25 @@ export function ProdutoModal({ open, onOpenChange, produto }: ProdutoModalProps)
   }, [open, produto, reset]);
 
   const ativo = watch("ativo");
+  const categoria = watch("categoria");
+  const componentesIds = watch("componentesIds") ?? [];
+
+  // Candidatos a compor um combo: hambúrgueres, batatas e bebidas.
+  const candidatos = React.useMemo(
+    () =>
+      produtos.filter((p) =>
+        ["HAMBURGUERES", "BATATAS", "BEBIDAS"].includes(p.categoria)
+      ),
+    [produtos]
+  );
+
+  function toggleComponente(id: string) {
+    const atual = componentesIds;
+    setValue(
+      "componentesIds",
+      atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id]
+    );
+  }
 
   async function onSubmit(data: ProdutoFormValues) {
     try {
@@ -153,6 +176,57 @@ export function ProdutoModal({ open, onOpenChange, produto }: ProdutoModalProps)
               </Select>
             </div>
           </div>
+
+          {/* Composição do combo (hambúrguer + acompanhamento + bebida) */}
+          {categoria === "COMBOS" && (
+            <div className="grid gap-2 rounded-xl border border-border bg-secondary/30 p-3">
+              <Label>Itens do combo</Label>
+              <p className="text-xs text-muted-foreground">
+                Selecione os produtos que compõem este combo. Inclua um{" "}
+                <b>hambúrguer</b> para que o combo aceite extras.
+              </p>
+              {candidatos.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Cadastre hambúrgueres, batatas e bebidas primeiro.
+                </p>
+              ) : (
+                <div className="grid max-h-52 gap-1.5 overflow-y-auto scrollbar-thin">
+                  {candidatos.map((p) => {
+                    const active = componentesIds.includes(p.id);
+                    return (
+                      <label
+                        key={p.id}
+                        className={
+                          "flex cursor-pointer items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm transition-colors " +
+                          (active
+                            ? "border-primary bg-primary/5"
+                            : "border-border bg-card hover:bg-secondary")
+                        }
+                      >
+                        <span className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={active}
+                            onChange={() => toggleComponente(p.id)}
+                            className="h-4 w-4 rounded border-slate-300 text-primary accent-green-600"
+                          />
+                          <span className="font-medium text-foreground">
+                            {p.nome}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {CATEGORIA_PRODUTO_LABEL[p.categoria]}
+                          </span>
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatCurrency(p.preco)}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">

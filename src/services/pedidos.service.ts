@@ -37,28 +37,40 @@ export async function criarPedido(
 
   const produtos = await prisma.produto.findMany({
     where: { id: { in: Array.from(produtoIds) } },
+    include: { componentes: { include: { produto: true } } },
   });
   const mapa = new Map(produtos.map((p) => [p.id, p]));
 
-  // Monta os itens com preços do banco. Extras só valem para hambúrgueres.
+  // Monta os itens com preços do banco. Extras valem para hambúrgueres e para
+  // combos que contêm um hambúrguer (os extras vão para o hambúrguer de dentro).
   const itensData = parsed.itens.map((item) => {
     const produto = mapa.get(item.produtoId);
     if (!produto) {
       throw new Error(`Produto não encontrado: ${item.produtoId}`);
     }
 
-    const extrasValidos =
-      produto.categoria === "HAMBURGUERES"
-        ? item.extras
-            .map((e) => mapa.get(e.produtoId))
-            .filter(
-              (p): p is NonNullable<typeof p> =>
-                Boolean(p) && p!.categoria === "EXTRAS"
-            )
-        : [];
+    const comboComHamburguer =
+      produto.categoria === "COMBOS" &&
+      produto.componentes.some((c) => c.produto.categoria === "HAMBURGUERES");
+    const aceitaExtras =
+      produto.categoria === "HAMBURGUERES" || comboComHamburguer;
+
+    const extrasValidos = aceitaExtras
+      ? item.extras
+          .map((e) => mapa.get(e.produtoId))
+          .filter(
+            (p): p is NonNullable<typeof p> =>
+              Boolean(p) && p!.categoria === "EXTRAS"
+          )
+      : [];
 
     const somaExtras = extrasValidos.reduce((acc, e) => acc + e.preco, 0);
     const valorTotal = (produto.preco + somaExtras) * item.quantidade;
+
+    const composicao =
+      produto.categoria === "COMBOS" && produto.componentes.length > 0
+        ? produto.componentes.map((c) => c.produto.nome).join(", ")
+        : null;
 
     return {
       produtoId: produto.id,
@@ -67,6 +79,7 @@ export async function criarPedido(
       quantidade: item.quantidade,
       valorUnitario: produto.preco,
       valorTotal,
+      composicao,
       extras: {
         create: extrasValidos.map((e) => ({
           produtoId: e.id,

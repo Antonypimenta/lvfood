@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { Produto } from "@/types";
+import { aceitaExtras } from "@/lib/produto";
 
 /** Linha do carrinho. Cada hambúrguer é uma linha própria (extras exclusivos). */
 export interface CarrinhoItem {
@@ -14,10 +15,6 @@ export interface CarrinhoItem {
 
 let seq = 0;
 const novoUid = () => `linha-${Date.now()}-${seq++}`;
-
-function ehHamburguer(p: Produto) {
-  return p.categoria === "HAMBURGUERES";
-}
 
 interface CarrinhoState {
   itens: CarrinhoItem[];
@@ -37,8 +34,9 @@ export const useCarrinho = create<CarrinhoState>((set, get) => ({
   itens: [],
 
   adicionar: (produto) => {
-    // Produtos que não são hambúrguer agrupam na mesma linha (soma quantidade).
-    if (!ehHamburguer(produto)) {
+    // Produtos que não aceitam extras agrupam na mesma linha (soma quantidade).
+    // Hambúrgueres e combos com hambúrguer viram linha própria (extras exclusivos).
+    if (!aceitaExtras(produto)) {
       const existente = get().itens.find(
         (i) => i.produto.id === produto.id && i.extras.length === 0
       );
@@ -53,7 +51,6 @@ export const useCarrinho = create<CarrinhoState>((set, get) => ({
         return existente.uid;
       }
     }
-    // Hambúrguer (ou primeira unidade) → nova linha própria.
     const uid = novoUid();
     set((s) => ({
       itens: [...s.itens, { uid, produto, quantidade: 1, extras: [] }],
