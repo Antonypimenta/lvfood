@@ -25,7 +25,7 @@ import { useCarrinho } from "@/store/useCarrinho";
 interface CheckoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirmado: (numero: number) => void;
+  onConfirmado: (numero: number, formaPagamento: string) => void;
 }
 
 const defaults: CheckoutFormValues = {
@@ -96,7 +96,7 @@ export function CheckoutModal({
       const pedido = await res.json();
       limpar();
       onOpenChange(false);
-      onConfirmado(pedido.numero);
+      onConfirmado(pedido.numero, data.formaPagamento);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao enviar pedido");
     }

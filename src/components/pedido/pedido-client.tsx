@@ -1,17 +1,86 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, UtensilsCrossed, ShoppingCart, X } from "lucide-react";
+import {
+  CheckCircle2,
+  UtensilsCrossed,
+  ShoppingCart,
+  X,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ProdutoCard } from "./produto-card";
 import { Cart } from "./cart";
 import { ExtrasModal } from "./extras-modal";
 import { CheckoutModal } from "./checkout-modal";
+import { toast } from "@/components/ui/toast";
 import { useCarrinho, type CarrinhoItem } from "@/store/useCarrinho";
 import { formatCurrency, formatNumeroPedido } from "@/lib/utils";
 import { aceitaExtras } from "@/lib/produto";
+import { CHAVE_PIX } from "@/lib/constants";
 import type { Produto } from "@/types";
+
+/** Bloco de pagamento PIX com botão para copiar a chave. */
+function PixCopiar() {
+  const [copiado, setCopiado] = React.useState(false);
+
+  async function copiar() {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(CHAVE_PIX);
+      } else {
+        // Fallback para navegadores/contextos sem clipboard API.
+        const el = document.createElement("textarea");
+        el.value = CHAVE_PIX;
+        el.style.position = "fixed";
+        el.style.opacity = "0";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopiado(true);
+      toast.success("Chave PIX copiada!");
+      setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      toast.error("Não foi possível copiar. Copie manualmente.");
+    }
+  }
+
+  return (
+    <div className="w-full rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left">
+      <p className="text-sm font-semibold text-slate-800">
+        💳 Pague com PIX
+      </p>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        Copie a chave abaixo e pague no app do seu banco.
+      </p>
+      <div className="mt-3 flex items-center gap-2">
+        <code className="min-w-0 flex-1 truncate rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-slate-800">
+          {CHAVE_PIX}
+        </code>
+        <Button
+          type="button"
+          onClick={copiar}
+          className="shrink-0 gap-1.5"
+          aria-label="Copiar chave PIX"
+        >
+          {copiado ? (
+            <>
+              <Check className="h-4 w-4" /> Copiado
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" /> Copiar
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 interface PedidoClientProps {
   produtos: Produto[];
@@ -49,9 +118,10 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
   } | null>(null);
   const [checkoutOpen, setCheckoutOpen] = React.useState(false);
   const [carrinhoOpen, setCarrinhoOpen] = React.useState(false);
-  const [pedidoConfirmado, setPedidoConfirmado] = React.useState<number | null>(
-    null
-  );
+  const [pedidoConfirmado, setPedidoConfirmado] = React.useState<{
+    numero: number;
+    formaPagamento: string;
+  } | null>(null);
 
   function handleAdd(produto: Produto) {
     const uid = adicionar(produto);
@@ -87,10 +157,13 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
         <p className="text-muted-foreground">
           Seu pedido{" "}
           <b className="text-slate-800">
-            #{formatNumeroPedido(pedidoConfirmado)}
+            #{formatNumeroPedido(pedidoConfirmado.numero)}
           </b>{" "}
           foi recebido e já está em preparo. 👨‍🍳
         </p>
+
+        {pedidoConfirmado.formaPagamento === "PIX" && <PixCopiar />}
+
         <Button
           onClick={() => setPedidoConfirmado(null)}
           size="lg"
@@ -196,7 +269,9 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
       <CheckoutModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        onConfirmado={(numero) => setPedidoConfirmado(numero)}
+        onConfirmado={(numero, formaPagamento) =>
+          setPedidoConfirmado({ numero, formaPagamento })
+        }
       />
     </div>
   );

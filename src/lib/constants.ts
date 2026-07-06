@@ -133,6 +133,9 @@ export const STATUS_ENTREGADOR_DOT: Record<StatusEntregador, string> = {
   EM_ENTREGA: "bg-blue-500",
 };
 
+/** Chave PIX para pagamento dos pedidos (exibida ao cliente no checkout). */
+export const CHAVE_PIX = "lirioodoosvaless@gmail.com";
+
 /** Limites do cronômetro (em minutos). */
 export const TEMPO_ATENCAO = 30;
 export const TEMPO_CRITICO = 45;
