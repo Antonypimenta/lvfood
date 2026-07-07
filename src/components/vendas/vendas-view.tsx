@@ -10,17 +10,26 @@ import {
   CreditCard,
   PackageCheck,
   AlertCircle,
+  Star,
+  Boxes,
+  Plus,
 } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useStore } from "@/store/useStore";
-import { calcularVendas } from "@/lib/stats";
+import { calcularVendas, calcularRelatorioItens } from "@/lib/stats";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { CATEGORIA_EMOJI } from "@/lib/constants";
 
 export function VendasView() {
   const pedidos = useStore((s) => s.pedidos);
+  const produtos = useStore((s) => s.produtos);
   const v = React.useMemo(() => calcularVendas(pedidos), [pedidos]);
+  const rel = React.useMemo(
+    () => calcularRelatorioItens(pedidos, produtos),
+    [pedidos, produtos]
+  );
 
   const formas = [
     { label: "PIX", valor: v.pix, icon: Landmark, color: "text-green-600 bg-green-100" },
@@ -39,8 +48,8 @@ export function VendasView() {
           iconClass="bg-green-100 text-green-600"
         />
         <StatCard
-          label="Itens vendidos"
-          value={v.combosVendidos}
+          label="Pedidos"
+          value={pedidos.length}
           icon={Beef}
           iconClass="bg-amber-100 text-amber-600"
         />
@@ -56,6 +65,100 @@ export function VendasView() {
           icon={PackageCheck}
           iconClass="bg-slate-100 text-slate-600"
         />
+      </div>
+
+      {/* Relatório de itens — combos desmembrados nos seus componentes */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          label="Combos vendidos"
+          value={rel.combosVendidos}
+          icon={Star}
+          iconClass="bg-amber-100 text-amber-600"
+        />
+        <StatCard
+          label="Itens totais"
+          value={rel.itensTotais}
+          icon={Boxes}
+          iconClass="bg-orange-100 text-orange-600"
+        />
+        <StatCard
+          label="Extras vendidos"
+          value={rel.extrasQuantidade}
+          icon={Plus}
+          iconClass="bg-emerald-100 text-emerald-600"
+        />
+        <StatCard
+          label="Valor em extras"
+          value={formatCurrency(rel.extrasValor)}
+          icon={DollarSign}
+          iconClass="bg-green-100 text-green-600"
+        />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Quanto de cada item</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {rel.porItem.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Nenhum item vendido ainda.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {rel.porItem.map((item) => (
+                  <li
+                    key={item.nome}
+                    className="flex items-center justify-between gap-2 py-2.5"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                      <span className="text-base">
+                        {item.categoria === "DESCONHECIDO"
+                          ? "🍽️"
+                          : CATEGORIA_EMOJI[item.categoria]}
+                      </span>
+                      <span className="truncate">{item.nome}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-sm font-bold text-foreground">
+                      {item.quantidade}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Extras vendidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {rel.porExtra.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Nenhum extra vendido ainda.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {rel.porExtra.map((extra) => (
+                  <li
+                    key={extra.nome}
+                    className="flex items-center justify-between gap-2 py-2.5"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                      <span className="text-base">➕</span>
+                      <span className="truncate">{extra.nome}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-sm font-bold text-foreground">
+                      {extra.quantidade}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

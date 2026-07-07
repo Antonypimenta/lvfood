@@ -86,6 +86,23 @@ export function PedidoModal() {
     atuais: Produto[];
   } | null>(null);
 
+  // Ao fechar o modal de extras (aninhado), o Radix dispara um fechamento
+  // espúrio no modal do pedido logo em seguida — quando `extrasTarget` já é
+  // null. Guardamos o instante do fechamento dos extras para ignorar esse
+  // fechamento automático e não perder os itens já adicionados.
+  const extrasFechadoEm = React.useRef(0);
+
+  function fecharExtras() {
+    extrasFechadoEm.current = Date.now();
+    setExtrasTarget(null);
+  }
+
+  function fecharSeguro(aberto: boolean) {
+    if (aberto) return;
+    if (extrasTarget || Date.now() - extrasFechadoEm.current < 500) return;
+    fechar();
+  }
+
   const {
     register,
     handleSubmit,
@@ -229,8 +246,18 @@ export function PedidoModal() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => (o ? null : fechar())}>
-      <DialogContent className="max-w-xl">
+    <Dialog open={open} onOpenChange={fecharSeguro}>
+      <DialogContent
+        className="max-w-xl"
+        // Enquanto o modal de extras (aninhado) está aberto, o Radix trataria
+        // cliques nele como interação "fora" e fecharia o pedido inteiro.
+        onInteractOutside={(e) => {
+          if (extrasTarget) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (extrasTarget) e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar pedido" : "Novo pedido"}</DialogTitle>
           <DialogDescription>
@@ -550,7 +577,7 @@ export function PedidoModal() {
 
       <ExtrasModal
         open={extrasTarget !== null}
-        onOpenChange={(o) => !o && setExtrasTarget(null)}
+        onOpenChange={(o) => !o && fecharExtras()}
         nomeHamburguer={extrasTarget?.nome ?? ""}
         extrasDisponiveis={extrasDisponiveis}
         selecionados={extrasTarget?.atuais ?? []}
