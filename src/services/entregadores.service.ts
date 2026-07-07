@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { eventoAtivo } from "@/services/eventos.service";
 
 export async function listarEntregadores() {
+  // Só considera os pedidos do evento ativo para as contagens do painel.
+  const evento = await eventoAtivo();
   return prisma.entregador.findMany({
     orderBy: { createdAt: "asc" },
-    include: { pedidos: { include: { entregador: false } } },
+    include: { pedidos: { where: { eventoId: evento.id } } },
   });
 }
 

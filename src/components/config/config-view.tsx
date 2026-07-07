@@ -18,6 +18,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useStore } from "@/store/useStore";
 import { toast } from "@/components/ui/toast";
 import { configSchema, type ConfigFormValues } from "@/schemas/pedido";
+import { EventosCard } from "./eventos-card";
 
 export function ConfigView() {
   const config = useStore((s) => s.config);
@@ -48,12 +49,15 @@ export function ConfigView() {
 
   return (
     <div className="grid max-w-2xl gap-6">
+      <EventosCard />
+
       <Card>
         <CardHeader>
-          <CardTitle>Dados do evento</CardTitle>
+          <CardTitle>Nome do evento ativo</CardTitle>
           <CardDescription>
-            Nome exibido no painel e na página pública de pedidos. O cardápio e os
-            preços são gerenciados no módulo <b>Produtos</b>.
+            Nome exibido no painel e na página pública de pedidos. Renomeia o
+            evento selecionado. O cardápio e os preços são gerenciados no módulo{" "}
+            <b>Produtos</b>.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,7 +85,8 @@ export function ConfigView() {
         <CardHeader>
           <CardTitle className="text-red-600">Zona de risco</CardTitle>
           <CardDescription>
-            Remove todos os pedidos e reseta os entregadores. Não pode ser desfeito.
+            Remove os pedidos <b>do evento ativo</b> e reseta os entregadores.
+            Não pode ser desfeito.
           </CardDescription>
         </CardHeader>
         <CardContent>

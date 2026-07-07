@@ -10,13 +10,17 @@ import {
   Beef,
   DollarSign,
   Receipt,
+  Star,
+  Boxes,
+  Plus,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatusPedidoBadge, EntregadorStatusBadge } from "@/components/shared/status-badges";
 import { useStore } from "@/store/useStore";
-import { calcularStats } from "@/lib/stats";
+import { calcularStats, calcularRelatorioItens } from "@/lib/stats";
 import { formatCurrency, formatNumeroPedido } from "@/lib/utils";
+import { CATEGORIA_EMOJI } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
 import { format } from "date-fns";
 
@@ -24,8 +28,13 @@ export function DashboardView() {
   const pedidos = useStore((s) => s.pedidos);
   const entregadores = useStore((s) => s.entregadores);
   const config = useStore((s) => s.config);
+  const produtos = useStore((s) => s.produtos);
 
   const stats = React.useMemo(() => calcularStats(pedidos), [pedidos]);
+  const rel = React.useMemo(
+    () => calcularRelatorioItens(pedidos, produtos),
+    [pedidos, produtos]
+  );
   const ultimos = React.useMemo(() => pedidos.slice(0, 8), [pedidos]);
 
   return (
@@ -90,6 +99,100 @@ export function DashboardView() {
           icon={Receipt}
           iconClass="bg-primary/10 text-primary"
         />
+      </div>
+
+      {/* Itens do evento — combos desmembrados nos seus componentes */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Itens vendidos no evento</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <MiniStat
+                icon={<Star className="h-4 w-4" />}
+                label="Combos"
+                value={rel.combosVendidos}
+                color="bg-amber-100 text-amber-600"
+              />
+              <MiniStat
+                icon={<Boxes className="h-4 w-4" />}
+                label="Itens totais"
+                value={rel.itensTotais}
+                color="bg-orange-100 text-orange-600"
+              />
+              <MiniStat
+                icon={<Plus className="h-4 w-4" />}
+                label="Extras"
+                value={rel.extrasQuantidade}
+                color="bg-emerald-100 text-emerald-600"
+              />
+              <MiniStat
+                icon={<DollarSign className="h-4 w-4" />}
+                label="Em extras"
+                value={formatCurrency(rel.extrasValor)}
+                color="bg-green-100 text-green-600"
+              />
+            </div>
+
+            {rel.porItem.length === 0 ? (
+              <p className="py-2 text-center text-sm text-muted-foreground">
+                Nenhum item vendido ainda neste evento.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {rel.porItem.map((item) => (
+                  <li
+                    key={item.nome}
+                    className="flex items-center justify-between gap-2 py-2"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                      <span className="text-base">
+                        {item.categoria === "DESCONHECIDO"
+                          ? "🍽️"
+                          : CATEGORIA_EMOJI[item.categoria]}
+                      </span>
+                      <span className="truncate">{item.nome}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-sm font-bold text-foreground">
+                      {item.quantidade}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Extras vendidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {rel.porExtra.length === 0 ? (
+              <p className="py-2 text-center text-sm text-muted-foreground">
+                Nenhum extra vendido ainda.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {rel.porExtra.map((extra) => (
+                  <li
+                    key={extra.nome}
+                    className="flex items-center justify-between gap-2 py-2"
+                  >
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                      <span className="text-base">➕</span>
+                      <span className="truncate">{extra.nome}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-sm font-bold text-foreground">
+                      {extra.quantidade}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Últimos pedidos + Entregadores */}
@@ -174,6 +277,33 @@ export function DashboardView() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  color: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <span
+        className={
+          "mb-2 inline-flex h-8 w-8 items-center justify-center rounded-lg " +
+          color
+        }
+      >
+        {icon}
+      </span>
+      <p className="text-lg font-bold leading-tight text-foreground">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }

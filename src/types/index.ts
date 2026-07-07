@@ -89,6 +89,14 @@ export interface Pedido {
 export interface Configuracao {
   id: string;
   nomeEvento: string;
+  eventoAtivoId: string | null;
+}
+
+export interface Evento {
+  id: string;
+  nome: string;
+  createdAt: string;
+  totalPedidos: number;
 }
 
 /** Entregador com contagem de pedidos ativos/do dia. */
