@@ -18,9 +18,20 @@ datasource db {
 // Categoria do produto: COMBOS | HAMBURGUERES | BATATAS | BEBIDAS | EXTRAS
 // (Mantidos como String + validação Zod para simplicidade de migração.)
 
+// Evento: cada evento tem seus próprios pedidos (dados separados por evento).
+model Evento {
+  id        String   @id @default(cuid())
+  nome      String
+  pedidos   Pedido[]
+  createdAt DateTime @default(now())
+}
+
 model Pedido {
   id             String   @id @default(cuid())
-  numero         Int      @unique
+  evento         Evento   @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  eventoId       String
+  // Número sequencial por evento (cada evento começa em 1).
+  numero         Int
   nome           String
   telefone       String
   bairro         String
@@ -42,8 +53,10 @@ model Pedido {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  @@unique([eventoId, numero])
   @@index([status])
   @@index([entregadorId])
+  @@index([eventoId])
 }
 
 // Produto do cardápio — totalmente gerenciado pelo módulo Produtos.
@@ -122,6 +135,8 @@ model Entregador {
 }
 
 model Configuracao {
-  id         String @id @default("singleton")
-  nomeEvento String @default("Burguer LV")
+  id            String  @id @default("singleton")
+  nomeEvento    String  @default("Burguer LV")
+  // Evento atualmente selecionado (define quais pedidos são exibidos).
+  eventoAtivoId String?
 }

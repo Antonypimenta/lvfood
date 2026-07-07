@@ -6,7 +6,7 @@ export default function ConfiguracoesPage() {
       <div>
         <h2 className="text-xl font-bold text-foreground">Configurações</h2>
         <p className="text-sm text-muted-foreground">
-          Ajuste o evento e o valor do combo.
+          Gerencie os eventos e o nome exibido no painel.
         </p>
       </div>
       <ConfigView />

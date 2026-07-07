@@ -6,6 +6,7 @@ import type {
   Produto,
   EntregadorComPedidos,
   Configuracao,
+  Evento,
   StatusPedido,
 } from "@/types";
 import type {
@@ -24,10 +25,17 @@ interface StoreState {
   produtos: Produto[];
   entregadores: EntregadorComPedidos[];
   config: Configuracao | null;
+  eventos: Evento[];
   loaded: boolean;
 
   // busca / carga
   fetchAll: () => Promise<void>;
+
+  // eventos
+  criarEvento: (nome: string) => Promise<void>;
+  renomearEvento: (id: string, nome: string) => Promise<void>;
+  selecionarEvento: (id: string) => Promise<void>;
+  excluirEvento: (id: string) => Promise<void>;
 
   // pedidos
   criarPedido: (data: CriarPedidoInput) => Promise<Pedido | null>;
@@ -69,16 +77,48 @@ export const useStore = create<StoreState>((set, get) => ({
   produtos: [],
   entregadores: [],
   config: null,
+  eventos: [],
   loaded: false,
 
   fetchAll: async () => {
-    const [pedidos, produtos, entregadores, config] = await Promise.all([
-      api<Pedido[]>("/api/pedidos"),
-      api<Produto[]>("/api/produtos"),
-      api<EntregadorComPedidos[]>("/api/entregadores"),
-      api<Configuracao>("/api/config"),
-    ]);
-    set({ pedidos, produtos, entregadores, config, loaded: true });
+    const [pedidos, produtos, entregadores, config, eventos] =
+      await Promise.all([
+        api<Pedido[]>("/api/pedidos"),
+        api<Produto[]>("/api/produtos"),
+        api<EntregadorComPedidos[]>("/api/entregadores"),
+        api<Configuracao>("/api/config"),
+        api<Evento[]>("/api/eventos"),
+      ]);
+    set({ pedidos, produtos, entregadores, config, eventos, loaded: true });
+  },
+
+  criarEvento: async (nome) => {
+    await api("/api/eventos", {
+      method: "POST",
+      body: JSON.stringify({ nome }),
+    });
+    await get().fetchAll();
+  },
+
+  renomearEvento: async (id, nome) => {
+    await api(`/api/eventos/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ nome }),
+    });
+    await get().fetchAll();
+  },
+
+  selecionarEvento: async (id) => {
+    await api(`/api/eventos/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ ativar: true }),
+    });
+    await get().fetchAll();
+  },
+
+  excluirEvento: async (id) => {
+    await api(`/api/eventos/${id}`, { method: "DELETE" });
+    await get().fetchAll();
   },
 
   criarPedido: async (data) => {

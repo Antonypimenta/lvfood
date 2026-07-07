@@ -1,10 +1,55 @@
 "use client";
 
+import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Plus, Search } from "lucide-react";
+import { Menu, Plus, Search, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { useUiStore } from "@/store/useUiStore";
+import { useStore } from "@/store/useStore";
+import { toast } from "@/components/ui/toast";
 import { NAV_ITEMS } from "@/lib/navigation";
+
+/** Seletor de evento ativo — troca o contexto de dados em qualquer página. */
+function SeletorEvento() {
+  const eventos = useStore((s) => s.eventos);
+  const config = useStore((s) => s.config);
+  const selecionarEvento = useStore((s) => s.selecionarEvento);
+  const [trocando, setTrocando] = React.useState(false);
+
+  if (eventos.length === 0) return null;
+
+  async function trocar(id: string) {
+    if (!id || id === config?.eventoAtivoId) return;
+    setTrocando(true);
+    try {
+      await selecionarEvento(id);
+    } catch {
+      toast.error("Erro ao trocar de evento");
+    } finally {
+      setTrocando(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <CalendarDays className="hidden h-4 w-4 text-muted-foreground sm:block" />
+      <Select
+        aria-label="Evento ativo"
+        value={config?.eventoAtivoId ?? ""}
+        disabled={trocando}
+        onChange={(e) => trocar(e.target.value)}
+        className="h-9 w-[9rem] sm:w-44"
+      >
+        {eventos.map((ev) => (
+          <option key={ev.id} value={ev.id}>
+            {ev.nome}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
+}
 
 function tituloPagina(pathname: string): string {
   if (pathname === "/") return "Dashboard";
@@ -40,11 +85,12 @@ export function Header({
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold text-foreground">
+      <h1 className="hidden text-lg font-semibold text-foreground sm:block">
         {tituloPagina(pathname)}
       </h1>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <SeletorEvento />
         <button
           onClick={irParaBusca}
           className="hidden items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary sm:flex"

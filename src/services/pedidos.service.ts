@@ -5,6 +5,7 @@ import {
   atualizarPedidoSchema,
   criarRotaSchema,
 } from "@/schemas/pedido";
+import { eventoAtivo } from "@/services/eventos.service";
 
 /** Include padrão: entregador + itens (com extras) de cada pedido. */
 const pedidoInclude = {
@@ -16,7 +17,9 @@ const pedidoInclude = {
 } as const;
 
 export async function listarPedidos() {
+  const evento = await eventoAtivo();
   return prisma.pedido.findMany({
+    where: { eventoId: evento.id },
     orderBy: { numero: "desc" },
     include: pedidoInclude,
   });
@@ -26,6 +29,7 @@ export async function criarPedido(
   data: z.infer<typeof criarPedidoSchema>
 ) {
   const parsed = criarPedidoSchema.parse(data);
+  const evento = await eventoAtivo();
 
   // Busca os produtos referenciados para recalcular tudo no servidor
   // (nunca confiar em preços vindos do cliente).
@@ -93,8 +97,9 @@ export async function criarPedido(
   const valor = itensData.reduce((acc, i) => acc + i.valorTotal, 0);
   const quantidade = itensData.reduce((acc, i) => acc + i.quantidade, 0);
 
-  // Número sequencial: max + 1 (padStart apenas na exibição).
+  // Número sequencial por evento: max do evento + 1.
   const ultimo = await prisma.pedido.findFirst({
+    where: { eventoId: evento.id },
     orderBy: { numero: "desc" },
     select: { numero: true },
   });
@@ -102,6 +107,7 @@ export async function criarPedido(
 
   return prisma.pedido.create({
     data: {
+      eventoId: evento.id,
       numero,
       nome: parsed.nome,
       telefone: parsed.telefone,
