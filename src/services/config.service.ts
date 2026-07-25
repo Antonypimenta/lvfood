@@ -13,7 +13,25 @@ export async function obterConfig() {
     id: "singleton",
     nomeEvento: config?.nomeEvento ?? evento.nome,
     eventoAtivoId: evento.id,
+    deliveryAtivo: config?.deliveryAtivo ?? true,
   };
+}
+
+/** Liga/desliga a aceitação de pedidos no cardápio público. */
+export async function definirDelivery(ativo: boolean) {
+  await eventoAtivo(); // garante a config
+  return prisma.configuracao.update({
+    where: { id: "singleton" },
+    data: { deliveryAtivo: ativo },
+  });
+}
+
+/** Indica se o cardápio público está aceitando pedidos. */
+export async function deliveryAtivo() {
+  const config = await prisma.configuracao.findUnique({
+    where: { id: "singleton" },
+  });
+  return config?.deliveryAtivo ?? true;
 }
 
 export async function atualizarConfig(data: z.infer<typeof configSchema>) {

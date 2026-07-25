@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { obterConfig, atualizarConfig } from "@/services/config.service";
+import {
+  obterConfig,
+  atualizarConfig,
+  definirDelivery,
+} from "@/services/config.service";
 import { ZodError } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +16,11 @@ export async function GET() {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
+    // Alternar o liga/desliga do delivery.
+    if (typeof body?.deliveryAtivo === "boolean") {
+      await definirDelivery(body.deliveryAtivo);
+      return NextResponse.json(await obterConfig());
+    }
     const config = await atualizarConfig(body);
     return NextResponse.json(config);
   } catch (error) {

@@ -20,6 +20,7 @@ export default async function PedidoPage() {
     <PedidoClient
       produtos={produtos as unknown as Produto[]}
       nomeEvento={config.nomeEvento}
+      deliveryAtivo={config.deliveryAtivo}
     />
   );
 }

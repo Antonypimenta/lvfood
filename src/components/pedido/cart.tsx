@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Plus, Trash2, Pencil, ShoppingCart } from "lucide-react";
+import { Minus, Plus, Trash2, Pencil, ShoppingCart, CopyPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { CATEGORIA_EMOJI } from "@/lib/constants";
@@ -11,10 +11,12 @@ import { useCarrinho, type CarrinhoItem } from "@/store/useCarrinho";
 interface CartProps {
   /** Reabre o modal de extras para editar aquele hambúrguer/combo. */
   onEditarExtras: (item: CarrinhoItem) => void;
+  /** Cria outra unidade independente (com extras próprios) do mesmo item. */
+  onPedirOutro: (item: CarrinhoItem) => void;
   onCheckout: () => void;
 }
 
-export function Cart({ onEditarExtras, onCheckout }: CartProps) {
+export function Cart({ onEditarExtras, onPedirOutro, onCheckout }: CartProps) {
   const itens = useCarrinho((s) => s.itens);
   const incrementar = useCarrinho((s) => s.incrementar);
   const decrementar = useCarrinho((s) => s.decrementar);
@@ -89,34 +91,44 @@ export function Cart({ onEditarExtras, onCheckout }: CartProps) {
                 </div>
 
                 <div className="mt-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => decrementar(item.uid)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-slate-600 transition-colors hover:bg-slate-200"
-                      aria-label="Diminuir"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <span className="w-7 text-center text-sm font-bold text-slate-800">
-                      {item.quantidade}
-                    </span>
-                    <button
-                      onClick={() => incrementar(item.uid)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-slate-600 transition-colors hover:bg-slate-200"
-                      aria-label="Aumentar"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-
-                    {podeExtras && (
+                  {podeExtras ? (
+                    // Itens com extras: cada unidade é uma linha própria e
+                    // editável (sem quantidade compartilhada).
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <button
                         onClick={() => onEditarExtras(item)}
-                        className="ml-1 flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                        className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
                       >
-                        <Pencil className="h-3 w-3" /> Extras
+                        <Pencil className="h-3 w-3" /> Editar extras
                       </button>
-                    )}
-                  </div>
+                      <button
+                        onClick={() => onPedirOutro(item)}
+                        className="flex items-center gap-1 rounded-lg border border-border bg-secondary px-2 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-200"
+                      >
+                        <CopyPlus className="h-3 w-3" /> Pedir outro
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => decrementar(item.uid)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-slate-600 transition-colors hover:bg-slate-200"
+                        aria-label="Diminuir"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-7 text-center text-sm font-bold text-slate-800">
+                        {item.quantidade}
+                      </span>
+                      <button
+                        onClick={() => incrementar(item.uid)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-slate-600 transition-colors hover:bg-slate-200"
+                        aria-label="Aumentar"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                   <span className="text-sm font-extrabold text-slate-800">
                     {formatCurrency(subtotalLinha(item))}
                   </span>

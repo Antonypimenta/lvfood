@@ -6,6 +6,7 @@ import {
   criarRotaSchema,
 } from "@/schemas/pedido";
 import { eventoAtivo } from "@/services/eventos.service";
+import { deliveryAtivo } from "@/services/config.service";
 
 /** Include padrão: entregador + itens (com extras) de cada pedido. */
 const pedidoInclude = {
@@ -26,8 +27,13 @@ export async function listarPedidos() {
 }
 
 export async function criarPedido(
-  data: z.infer<typeof criarPedidoSchema>
+  data: z.infer<typeof criarPedidoSchema> & { publico?: boolean }
 ) {
+  // Pedidos vindos do cardápio público respeitam o liga/desliga do delivery.
+  // Pedidos criados pelo painel (admin) sempre passam.
+  if (data?.publico && !(await deliveryAtivo())) {
+    throw new Error("O delivery está fechado no momento");
+  }
   const parsed = criarPedidoSchema.parse(data);
   const evento = await eventoAtivo();
 

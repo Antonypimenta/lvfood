@@ -57,6 +57,7 @@ interface StoreState {
 
   // config
   salvarConfig: (data: { nomeEvento: string }) => Promise<void>;
+  definirDelivery: (ativo: boolean) => Promise<void>;
   limparSistema: () => Promise<void>;
 }
 
@@ -237,6 +238,14 @@ export const useStore = create<StoreState>((set, get) => ({
     const config = await api<Configuracao>("/api/config", {
       method: "PATCH",
       body: JSON.stringify(data),
+    });
+    set({ config });
+  },
+
+  definirDelivery: async (ativo) => {
+    const config = await api<Configuracao>("/api/config", {
+      method: "PATCH",
+      body: JSON.stringify({ deliveryAtivo: ativo }),
     });
     set({ config });
   },
