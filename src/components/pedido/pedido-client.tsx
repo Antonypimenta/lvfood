@@ -8,6 +8,7 @@ import {
   X,
   Copy,
   Check,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -85,10 +86,16 @@ function PixCopiar() {
 interface PedidoClientProps {
   produtos: Produto[];
   nomeEvento: string;
+  deliveryAtivo: boolean;
 }
 
-export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
+export function PedidoClient({
+  produtos,
+  nomeEvento,
+  deliveryAtivo,
+}: PedidoClientProps) {
   const adicionar = useCarrinho((s) => s.adicionar);
+  const duplicar = useCarrinho((s) => s.duplicar);
   const definirExtras = useCarrinho((s) => s.definirExtras);
   const itens = useCarrinho((s) => s.itens);
   const total = useCarrinho((s) => s.total);
@@ -136,6 +143,14 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
     setExtrasTarget({ item, modo: "edit" });
   }
 
+  // "Pedir outro": cria uma nova linha independente e abre os extras dela,
+  // para que cada combo/hambúrguer tenha seus próprios extras editáveis.
+  function handlePedirOutro(item: CarrinhoItem) {
+    const uid = duplicar(item.uid);
+    const novo = useCarrinho.getState().itens.find((i) => i.uid === uid);
+    if (novo) setExtrasTarget({ item: novo, modo: "edit" });
+  }
+
   function confirmarExtras(lista: Produto[]) {
     if (extrasTarget) definirExtras(extrasTarget.item.uid, lista);
   }
@@ -171,6 +186,25 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
         >
           Fazer novo pedido
         </Button>
+      </div>
+    );
+  }
+
+  // Delivery desligado: cardápio fechado, não aceita novos pedidos.
+  if (!deliveryAtivo) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-gradient-to-b from-orange-50/40 to-transparent px-6 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100">
+          <Clock className="h-12 w-12 text-amber-600" />
+        </div>
+        <h1 className="text-2xl font-black text-slate-800">{nomeEvento}</h1>
+        <p className="text-lg font-bold text-slate-700">
+          Estamos fechados no momento 😴
+        </p>
+        <p className="text-muted-foreground">
+          Não estamos aceitando pedidos agora. Volte mais tarde — assim que
+          reabrirmos, seu pedido será muito bem-vindo! 🍔
+        </p>
       </div>
     );
   }
@@ -215,7 +249,11 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
         {/* Carrinho — painel fixo no desktop */}
         <aside className="hidden lg:sticky lg:top-[84px] lg:block lg:h-[calc(100vh-104px)]">
           <div className="h-full overflow-hidden rounded-2xl border border-border shadow-sm">
-            <Cart onEditarExtras={handleEditarExtras} onCheckout={abrirCheckout} />
+            <Cart
+              onEditarExtras={handleEditarExtras}
+              onPedirOutro={handlePedirOutro}
+              onCheckout={abrirCheckout}
+            />
           </div>
         </aside>
       </div>
@@ -252,7 +290,11 @@ export function PedidoClient({ produtos, nomeEvento }: PedidoClientProps) {
           >
             <X className="h-5 w-5" />
           </button>
-          <Cart onEditarExtras={handleEditarExtras} onCheckout={abrirCheckout} />
+          <Cart
+            onEditarExtras={handleEditarExtras}
+            onPedirOutro={handlePedirOutro}
+            onCheckout={abrirCheckout}
+          />
         </DialogContent>
       </Dialog>
 

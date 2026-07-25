@@ -75,6 +75,7 @@ export function CheckoutModal({
     try {
       const payload = {
         ...data,
+        publico: true,
         pagamento: "PENDENTE" as const,
         troco: data.formaPagamento === "DINHEIRO" ? data.troco ?? null : null,
         itens: itens.map((i) => ({

@@ -13,6 +13,9 @@ import {
   Star,
   Boxes,
   Plus,
+  Link2,
+  Check,
+  Power,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -21,6 +24,7 @@ import { useStore } from "@/store/useStore";
 import { calcularStats, calcularRelatorioItens } from "@/lib/stats";
 import { formatCurrency, formatNumeroPedido } from "@/lib/utils";
 import { CATEGORIA_EMOJI } from "@/lib/constants";
+import { toast } from "@/components/ui/toast";
 import { Logo } from "@/components/layout/logo";
 import { format } from "date-fns";
 
@@ -29,6 +33,48 @@ export function DashboardView() {
   const entregadores = useStore((s) => s.entregadores);
   const config = useStore((s) => s.config);
   const produtos = useStore((s) => s.produtos);
+  const definirDelivery = useStore((s) => s.definirDelivery);
+
+  const deliveryAtivo = config?.deliveryAtivo ?? true;
+  const [copiado, setCopiado] = React.useState(false);
+  const [alterandoDelivery, setAlterandoDelivery] = React.useState(false);
+
+  async function copiarLink() {
+    const url = `${window.location.origin}/pedido`;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = url;
+        el.style.position = "fixed";
+        el.style.opacity = "0";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopiado(true);
+      toast.success("Link do cardápio copiado!");
+      setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      toast.error("Não foi possível copiar o link");
+    }
+  }
+
+  async function alternarDelivery() {
+    setAlterandoDelivery(true);
+    try {
+      await definirDelivery(!deliveryAtivo);
+      toast.success(
+        !deliveryAtivo ? "Delivery ligado ✅" : "Delivery desligado ⛔"
+      );
+    } catch {
+      toast.error("Erro ao alterar o delivery");
+    } finally {
+      setAlterandoDelivery(false);
+    }
+  }
 
   const stats = React.useMemo(() => calcularStats(pedidos), [pedidos]);
   const rel = React.useMemo(
@@ -39,7 +85,7 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      {/* Boas-vindas */}
+      {/* Boas-vindas + controles */}
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-transparent p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Logo compact />
@@ -51,6 +97,55 @@ export function DashboardView() {
               Painel de operação · Delivery em tempo real
             </p>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={copiarLink}
+            className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+          >
+            {copiado ? (
+              <>
+                <Check className="h-4 w-4 text-primary" /> Link copiado
+              </>
+            ) : (
+              <>
+                <Link2 className="h-4 w-4" /> Copiar link do cardápio
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={alternarDelivery}
+            disabled={alterandoDelivery}
+            className={
+              "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-60 " +
+              (deliveryAtivo
+                ? "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+                : "border-red-300 bg-red-50 text-red-700 hover:bg-red-100")
+            }
+            title={
+              deliveryAtivo
+                ? "O cardápio está aceitando pedidos"
+                : "O cardápio está fechado"
+            }
+          >
+            <Power className="h-4 w-4" />
+            {deliveryAtivo ? "Delivery ligado" : "Delivery desligado"}
+            <span
+              className={
+                "ml-1 inline-flex h-5 w-9 items-center rounded-full p-0.5 transition-colors " +
+                (deliveryAtivo ? "bg-green-500" : "bg-slate-300")
+              }
+            >
+              <span
+                className={
+                  "h-4 w-4 rounded-full bg-white transition-transform " +
+                  (deliveryAtivo ? "translate-x-4" : "translate-x-0")
+                }
+              />
+            </span>
+          </button>
         </div>
       </div>
 

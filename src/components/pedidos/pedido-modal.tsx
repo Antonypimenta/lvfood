@@ -208,6 +208,24 @@ export function PedidoModal() {
     );
   }
 
+  // "Pedir outro": duplica a linha numa nova independente e abre os extras
+  // dela, para que cada combo/hambúrguer tenha extras próprios editáveis.
+  function pedirOutro(linha: LinhaAdmin) {
+    const uid = novoUid();
+    setLinhas((ls) => [
+      ...ls,
+      {
+        uid,
+        produto: linha.produto,
+        quantidade: 1,
+        extras: [...linha.extras],
+      },
+    ]);
+    if (extrasDisponiveis.length > 0) {
+      setExtrasTarget({ uid, nome: linha.produto.nome, atuais: linha.extras });
+    }
+  }
+
   function remover(uid: string) {
     setLinhas((ls) => ls.filter((l) => l.uid !== uid));
   }
@@ -320,37 +338,51 @@ export function PedidoModal() {
                             {l.produto.nome}
                           </span>
                           <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => ajustar(l.uid, -1)}
-                              className="flex h-6 w-6 items-center justify-center rounded border border-border text-muted-foreground hover:bg-secondary"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="w-5 text-center text-sm font-semibold">
-                              {l.quantidade}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => ajustar(l.uid, 1)}
-                              className="flex h-6 w-6 items-center justify-center rounded border border-border text-muted-foreground hover:bg-secondary"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                            {ehHamburguer && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setExtrasTarget({
-                                    uid: l.uid,
-                                    nome: l.produto.nome,
-                                    atuais: l.extras,
-                                  })
-                                }
-                                className="flex h-6 items-center gap-1 rounded border border-border px-1.5 text-xs text-muted-foreground hover:bg-secondary"
-                              >
-                                <Pencil className="h-3 w-3" /> Extras
-                              </button>
+                            {ehHamburguer ? (
+                              // Itens com extras: cada unidade é uma linha
+                              // própria e editável (extras não compartilhados).
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setExtrasTarget({
+                                      uid: l.uid,
+                                      nome: l.produto.nome,
+                                      atuais: l.extras,
+                                    })
+                                  }
+                                  className="flex h-6 items-center gap-1 rounded border border-border px-1.5 text-xs text-muted-foreground hover:bg-secondary"
+                                >
+                                  <Pencil className="h-3 w-3" /> Extras
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => pedirOutro(l)}
+                                  className="flex h-6 items-center gap-1 rounded border border-border px-1.5 text-xs text-muted-foreground hover:bg-secondary"
+                                >
+                                  <Plus className="h-3 w-3" /> Outro
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => ajustar(l.uid, -1)}
+                                  className="flex h-6 w-6 items-center justify-center rounded border border-border text-muted-foreground hover:bg-secondary"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <span className="w-5 text-center text-sm font-semibold">
+                                  {l.quantidade}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => ajustar(l.uid, 1)}
+                                  className="flex h-6 w-6 items-center justify-center rounded border border-border text-muted-foreground hover:bg-secondary"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </>
                             )}
                             <button
                               type="button"

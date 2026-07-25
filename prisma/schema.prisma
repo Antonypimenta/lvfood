@@ -139,4 +139,6 @@ model Configuracao {
   nomeEvento    String  @default("Burguer LV")
   // Evento atualmente selecionado (define quais pedidos são exibidos).
   eventoAtivoId String?
+  // Quando false, o cardápio público para de aceitar novos pedidos.
+  deliveryAtivo Boolean @default(true)
 }

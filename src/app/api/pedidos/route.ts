@@ -21,6 +21,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    // Delivery fechado: erro de negócio (mensagem amigável ao cliente).
+    if (error instanceof Error && error.message === "O delivery está fechado no momento") {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     console.error(error);
     return NextResponse.json({ error: "Erro ao criar pedido" }, { status: 500 });
   }

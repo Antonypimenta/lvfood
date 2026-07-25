@@ -20,6 +20,8 @@ interface CarrinhoState {
   itens: CarrinhoItem[];
   /** Adiciona um produto. Retorna o uid da linha criada/atualizada. */
   adicionar: (produto: Produto) => string;
+  /** Duplica uma linha (mesmo produto e extras) numa nova linha independente. */
+  duplicar: (uid: string) => string;
   incrementar: (uid: string) => void;
   decrementar: (uid: string) => void;
   remover: (uid: string) => void;
@@ -56,6 +58,24 @@ export const useCarrinho = create<CarrinhoState>((set, get) => ({
       itens: [...s.itens, { uid, produto, quantidade: 1, extras: [] }],
     }));
     return uid;
+  },
+
+  duplicar: (uid) => {
+    const origem = get().itens.find((i) => i.uid === uid);
+    if (!origem) return "";
+    const novo = novoUid();
+    set((s) => ({
+      itens: [
+        ...s.itens,
+        {
+          uid: novo,
+          produto: origem.produto,
+          quantidade: 1,
+          extras: [...origem.extras],
+        },
+      ],
+    }));
+    return novo;
   },
 
   incrementar: (uid) =>

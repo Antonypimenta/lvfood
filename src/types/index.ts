@@ -90,6 +90,7 @@ export interface Configuracao {
   id: string;
   nomeEvento: string;
   eventoAtivoId: string | null;
+  deliveryAtivo: boolean;
 }
 
 export interface Evento {
