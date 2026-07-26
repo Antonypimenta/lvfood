@@ -1,5 +1,5 @@
 import type { Pedido, Produto, CategoriaProduto } from "@/types";
-import type { StatusPedido } from "@/types";
+import type { StatusPedido, FormaPagamento } from "@/types";
 
 export interface DashboardStats {
   total: number;
@@ -156,6 +156,40 @@ export function calcularRelatorioItens(
     extrasValor,
     porExtra: paraLista(extraMap),
   };
+}
+
+export interface FormaResumo {
+  forma: FormaPagamento;
+  /** Valor total dos pedidos nesta forma (pago + pendente). */
+  total: number;
+  /** Valor já recebido (pagamento = PAGO). */
+  pago: number;
+  /** Valor ainda a receber (pagamento = PENDENTE). */
+  pendente: number;
+  /** Quantidade de pedidos nesta forma. */
+  quantidade: number;
+}
+
+/**
+ * Resumo por forma de pagamento: total, valor pago (recebido) e pendente.
+ * Sempre calculado sobre os pedidos passados (já escopados por evento).
+ */
+export function calcularPorForma(pedidos: Pedido[]): FormaResumo[] {
+  const formas: FormaPagamento[] = ["PIX", "DINHEIRO", "CARTAO"];
+  return formas.map((forma) => {
+    const doForma = pedidos.filter((p) => p.formaPagamento === forma);
+    const pago = doForma
+      .filter((p) => p.pagamento === "PAGO")
+      .reduce((acc, p) => acc + p.valor, 0);
+    const total = doForma.reduce((acc, p) => acc + p.valor, 0);
+    return {
+      forma,
+      total,
+      pago,
+      pendente: total - pago,
+      quantidade: doForma.length,
+    };
+  });
 }
 
 /** Total por coluna do Kanban (quantidade de pedidos + valor). */
